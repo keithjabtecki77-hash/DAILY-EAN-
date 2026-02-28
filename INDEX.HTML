@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Daily Earn - Full Demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+body{
+  margin:0;
+  font-family:Segoe UI, sans-serif;
+  background:#eef2f7;
+}
+
+/* Sidebar */
+.sidebar{
+  width:240px;
+  height:100vh;
+  background:linear-gradient(180deg,#1e3c72,#2a5298);
+  position:fixed;
+  color:white;
+  padding-top:20px;
+  box-shadow:4px 0 15px rgba(0,0,0,0.1);
+  transition:0.3s;
+}
+
+.sidebar h2{
+  text-align:center;
+  margin-bottom:30px;
+}
+
+.sidebar button{
+  width:100%;
+  padding:14px;
+  border:none;
+  background:none;
+  color:white;
+  text-align:left;
+  cursor:pointer;
+  font-size:15px;
+  transition:0.3s;
+}
+
+.sidebar button:hover{
+  background:rgba(255,255,255,0.2);
+  padding-left:20px;
+}
+
+/* Collapsed sidebar for mobile */
+@media(max-width:768px){
+  .sidebar{
+    width:60px;
+    padding-top:10px;
+  }
+  .sidebar h2{display:none;}
+  .sidebar button{text-align:center;font-size:12px;padding:10px;}
+  .content{margin-left:70px;}
+}
+
+/* Content */
+.content{
+  margin-left:260px;
+  padding:20px;
+}
+
+.topbar{
+  font-size:20px;
+  margin-bottom:20px;
+}
+
+/* Cards */
+.card{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  box-shadow:0 5px 15px rgba(0,0,0,0.05);
+  margin-bottom:20px;
+  transition:0.3s;
+}
+
+.card:hover{
+  transform:translateY(-5px);
+  box-shadow:0 10px 20px rgba(0,0,0,0.08);
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+}
+
+.task-btn{
+  background:linear-gradient(90deg,#2a5298,#1e3c72);
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:8px;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.task-btn:hover{
+  transform:scale(1.05);
+}
+
+.task-btn:disabled{
+  background:gray;
+  transform:none;
+}
+
+.hidden{
+  display:none;
+}
+
+/* Progress */
+.progress-container{
+  background:#ddd;
+  border-radius:10px;
+  overflow:hidden;
+  height:22px;
+  margin-top:10px;
+}
+
+.progress-bar{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#00c6ff,#0072ff);
+  color:white;
+  text-align:center;
+  font-size:12px;
+  transition:width 0.5s ease;
+}
+
+input, select{
+  padding:8px;
+  width:250px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  margin-bottom:8px;
+}
+
+.copy-btn{
+  background:#28a745;
+  border:none;
+  color:white;
+  padding:4px 8px;
+  border-radius:5px;
+  cursor:pointer;
+  margin-left:5px;
+}
+
+.footer{
+  text-align:center;
+  margin-top:20px;
+  font-size:12px;
+  color:#555;
+}
+.footer a{
+  color:#2a5298;
+  text-decoration:none;
+  margin:0 5px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>Daily Earn</h2>
+  <button onclick="showTab('dashboard')">Dashboard</button>
+  <button onclick="showTab('tasks')">Tasks</button>
+  <button onclick="showTab('withdraw')">Withdraw</button>
+  <button onclick="showTab('profile')">Profile</button>
+  <button onclick="showAdminTab()">Admin</button>
+  <button onclick="resetDemo()">Reset</button>
+</div>
+
+<div class="content">
+
+<div class="topbar">
+  Welcome, <strong id="welcomeName"></strong>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" class="tab">
+  <div class="card">
+    <h3>Total Earnings</h3>
+    <h1>$<span id="earnings">0</span></h1>
+    <p id="welcomeBonusMsg" style="color:green;font-weight:bold;"></p>
+  </div>
+  <div class="card">
+    <h3>Daily Claim</h3>
+    <button class="task-btn" onclick="dailyClaim()">Claim $10</button>
+  </div>
+  <div class="card">
+    <h3>Task Progress</h3>
+    <div class="progress-container">
+      <div id="progressBar" class="progress-bar">0%</div>
+    </div>
+    <p><span id="tasksDone">0</span>/20 Tasks Completed</p>
+  </div>
+</div>
+
+<!-- Tasks -->
+<div id="tasks" class="tab hidden">
+  <div class="card">
+    <h3>Complete Tasks & Earn $20 Each</h3>
+    <div id="taskList" class="grid"></div>
+  </div>
+</div>
+
+<!-- Withdraw -->
+<div id="withdraw" class="tab hidden">
+  <div class="card">
+    <h3>Withdraw</h3>
+    <p>Test Card: 4242424242424242</p>
+    <input placeholder="Amount" id="withdrawAmount"><br>
+    <input placeholder="Card Holder Name" id="cardName"><br>
+    <input placeholder="Card Number" id="cardNumber"><br>
+    <select id="cardType">
+      <option value="Visa">Visa</option>
+      <option value="MasterCard">MasterCard</option>
+      <option value="Verve">Verve</option>
+    </select><br>
+    <input placeholder="Expiry MM/YY" id="expiry"><br>
+    <button class="task-btn" onclick="submitWithdraw()">Submit</button>
+    <p id="withdrawMsg"></p>
+  </div>
+</div>
+
+<!-- Profile -->
+<div id="profile" class="tab hidden">
+  <div class="card">
+    <h3>Profile</h3>
+    <p>Name: <span id="pUsername"></span></p>
+    <p>Age: <span id="pAge"></span></p>
+    <p>Occupation: <span id="pOccupation"></span></p>
+    <p>Monthly Earnings: $<span id="pMonthlyEarnings"></span></p>
+    <p>Work Type: <span id="pWork"></span></p>
+    <p>Country: <span id="pCountry"></span></p>
+  </div>
+</div>
+
+<!-- Admin -->
+<div id="admin" class="tab hidden">
+  <div class="card">
+    <h3>Admin Panel</h3>
+    <div id="adminRequests"></div>
+  </div>
+</div>
+
+<div class="footer">
+  <a href="#">Privacy Policy</a> | <a href="#">Terms & Conditions</a>
+</div>
+
+</div>
+
+<script>
+function calculateAge(dob){
+  let birthDate = new Date(dob);
+  let today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  let m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) age--;
+  return age;
+}
+
+/* First-time user setup */
+if(!localStorage.getItem("user")){
+  let username = prompt("Enter Your Name:");
+  let dob = prompt("Enter Date of Birth (YYYY-MM-DD):");
+  let age = calculateAge(dob);
+  let occupation = prompt("Enter Occupation:");
+  let monthlyEarnings = prompt("Enter Monthly Earnings:");
+  let workOptions = ["Student","Unemployed","Trader","Other"];
+  let workType = prompt("Work Type: Student, Unemployed, Trader, Other");
+  if(!workOptions.includes(workType)) workType="Other";
+  let country = prompt("Enter Country:");
+
+  let user = {
+    username,
+    age,
+    occupation,
+    monthlyEarnings,
+    work: workType,
+    country,
+    earnings:100,
+    welcomeBonus:100,
+    tasksCompleted:[],
+    withdrawals:[]
+  };
+  localStorage.setItem("user", JSON.stringify(user));
+  alert("🎉 Welcome Bonus: $100 Added!");
+}
+
+let user = JSON.parse(localStorage.getItem("user"));
+document.getElementById("welcomeName").innerText = user.username;
+
+function updateUI(){
+  document.getElementById("earnings").innerText = user.earnings;
+  document.getElementById("welcomeBonusMsg").innerText = "Welcome Bonus: $"+user.welcomeBonus;
+  document.getElementById("pUsername").innerText = user.username;
+  document.getElementById("pAge").innerText = user.age;
+  document.getElementById("pOccupation").innerText = user.occupation;
+  document.getElementById("pMonthlyEarnings").innerText = user.monthlyEarnings;
+  document.getElementById("pWork").innerText = user.work;
+  document.getElementById("pCountry").innerText = user.country;
+  loadTasks();
+  updateProgress();
+  localStorage.setItem("user", JSON.stringify(user));
+}
+
+function showTab(tab){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.add("hidden"));
+  document.getElementById(tab).classList.remove("hidden");
+}
+
+function dailyClaim(){
+  user.earnings += 10;
+  updateUI();
+}
+
+function loadTasks(){
+  let container = document.getElementById("taskList");
+  container.innerHTML="";
+  for(let i=1;i<=20;i++){
+    let btn = document.createElement("button");
+    btn.innerText = "Task "+i+" (+$20)";
+    btn.className="task-btn";
+    btn.disabled = user.tasksCompleted.includes(i);
+    btn.onclick = function(){
+      user.earnings += 20;
+      user.tasksCompleted.push(i);
+      updateUI();
+    };
+    container.appendChild(btn);
+  }
+}
+
+function updateProgress(){
+  let completed = user.tasksCompleted.length;
+  let percent = Math.round((completed/20)*100);
+  document.getElementById("progressBar").style.width = percent+"%";
+  document.getElementById("progressBar").innerText = percent+"%";
+  document.getElementById("tasksDone").innerText = completed;
+}
+
+function maskCard(cardNumber){return "**** **** **** "+cardNumber.slice(-4);}
+function submitWithdraw(){
+  let amount = parseInt(document.getElementById("withdrawAmount").value);
+  let cardNumber = document.getElementById("cardNumber").value;
+  let cardType = document.getElementById("cardType").value;
+
+  if(amount > user.earnings){
+    document.getElementById("withdrawMsg").innerText="Insufficient Balance!";
+    return;
+  }
+
+  let withdrawal = {
+    username:user.username,
+    amount:amount,
+    cardNumber:cardNumber,
+    last4:cardNumber.slice(-4),
+    type:cardType,
+    status:"Pending Payment"
+  };
+  user.withdrawals.push(withdrawal);
+  user.earnings -= amount;
+  document.getElementById("withdrawMsg").innerText="Withdrawal Submitted!";
+  updateUI();
+}
+
+/* Admin */
+function showAdminTab(){
+  let pwd = prompt("Enter Admin Password:");
+  if(pwd !== "OBASEMO1"){alert("Wrong password!"); return;}
+  showTab("admin");
+  renderAdminRequests();
+}
+
+function renderAdminRequests(){
+  let adminDiv = document.getElementById("adminRequests");
+  adminDiv.innerHTML="";
+  user.withdrawals.forEach((w, index)=>{
+    adminDiv.innerHTML +=
+      `<div class='card'>
+        <strong>User:</strong> ${w.username}<br>
+        <strong>Amount:</strong> $${w.amount}<br>
+        <strong>Card Type:</strong> ${w.type}<br>
+        <strong>Card:</strong> ${maskCard(w.cardNumber)}
+        <button class='copy-btn' onclick='copyCardNumber("${w.cardNumber}")'>Copy</button><br>
+        <strong>Status:</strong> <span id='status-${index}'>${w.status}</span><br>
+        <button class='task-btn' onclick='updateWithdrawalStatus(${index}, "Approved")'>Approve</button>
+        <button class='task-btn' onclick='updateWithdrawalStatus(${index}, "Rejected")'>Reject</button>
+      </div>`;
+  });
+}
+
+function updateWithdrawalStatus(index, newStatus){
+  user.withdrawals[index].status = newStatus;
+  localStorage.setItem("user", JSON.stringify(user));
+  document.getElementById(`status-${index}`).innerText = newStatus;
+}
+
+function copyCardNumber(cardNumber){
+  navigator.clipboard.writeText(cardNumber);
+  alert("Card number copied!");
+}
+
+function resetDemo(){
+  if(confirm("Reset all data?")){
+    localStorage.removeItem("user");
+    location.reload();
+  }
+}
+
+updateUI();
+</script>
+
+</body>
+</html>
