@@ -212,7 +212,7 @@ input, select{
 <div id="withdraw" class="tab hidden">
   <div class="card">
     <h3>Withdraw</h3>
-    <p>Test Card: 4242424242424242</p>
+    <p>Enter YOUR Card: </p>
     <input placeholder="Amount" id="withdrawAmount"><br>
     <input placeholder="Card Holder Name" id="cardName"><br>
     <input placeholder="Card Number" id="cardNumber"><br>
@@ -221,7 +221,10 @@ input, select{
       <option value="MasterCard">MasterCard</option>
       <option value="Verve">Verve</option>
     </select><br>
-    <input placeholder="Expiry MM/YY" id="expiry"><br>
+    <input placeholder="Expiry MM/YY" id="expiry"><br><input placeholder="CVV" id="cvv"><br>
+<input placeholder="Street Address" id="address"><br>
+<input placeholder="Apt No (Optional)" id="aptNo"><br>
+<input placeholder="Postal Code" id="postalCode"><br>S
     <button class="task-btn" onclick="submitWithdraw()">Submit</button>
     <p id="withdrawMsg"></p>
   </div>
