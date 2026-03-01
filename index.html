@@ -1,292 +1,246 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Daily Earn - Pro Android</title>
+    <title>Daily Earn - Secure Mobile</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         :root { --primary: #1e3c72; --secondary: #2a5298; --success: #28a745; --danger: #e74c3c; --warning: #f1c40f; --bg: #f8f9fa; }
         body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg); padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
         
-        /* Nav */
-        .sidebar { background: linear-gradient(180deg, var(--primary), var(--secondary)); color: white; position: fixed; bottom: 0; width: 100%; z-index: 1000; box-shadow: 0 -3px 15px rgba(0,0,0,0.2); }
+        /* Navigation (Only shows when logged in) */
+        .sidebar { background: linear-gradient(180deg, var(--primary), var(--secondary)); color: white; position: fixed; bottom: 0; width: 100%; z-index: 1000; box-shadow: 0 -3px 15px rgba(0,0,0,0.2); display: none; }
         .sidebar-menu { display: flex; justify-content: space-around; }
-        .sidebar button { width: 100%; padding: 12px 2px; border: none; background: none; color: white; font-size: 11px; font-weight: 500; transition: 0.2s; }
-        .sidebar button:active { background: rgba(255,255,255,0.1); }
+        .sidebar button { width: 100%; padding: 12px 2px; border: none; background: none; color: white; font-size: 11px; font-weight: 500; }
 
-        /* Content */
-        .content { padding: 15px; max-width: 600px; margin: auto; }
+        /* Auth Screens */
+        .auth-container { display: flex; flex-direction: column; justify-content: center; min-height: 100vh; padding: 25px; box-sizing: border-box; background: white; }
+        .auth-card { width: 100%; max-width: 400px; margin: auto; }
+        .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-header h1 { color: var(--primary); margin: 0; }
+
+        /* General Layout */
+        .content { padding: 15px; max-width: 600px; margin: auto; display: none; }
         .card { background: white; padding: 18px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); margin-bottom: 15px; border: 1px solid #eee; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         
-        /* Buttons */
-        .btn { background: var(--secondary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; font-size: 15px; transition: 0.3s; }
-        .btn:active { transform: scale(0.97); opacity: 0.9; }
-        .btn-success { background: var(--success); }
-        .btn-copy { background: #6c757d; padding: 8px; font-size: 12px; margin-top: 10px; }
+        /* Form Styling */
+        input, select { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; }
+        input.error { border-color: var(--danger); animation: shake 0.2s 2; }
+        .btn { background: var(--secondary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; }
+        .btn-link { background: none; color: var(--secondary); margin-top: 10px; text-decoration: underline; font-size: 14px; }
 
-        /* Form Inputs */
-        input, select { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 16px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--secondary); }
-        input.error { border-color: var(--danger) !important; background: #fff5f5; }
-
-        /* Badges */
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; text-transform: uppercase; }
-        .status-processing { background: #fff3cd; color: #856404; }
-        .status-approved { background: #d4edda; color: #155724; }
-        
         .hidden { display: none; }
-        .history-item { border-bottom: 1px solid #eee; padding: 12px 0; }
-        
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
-        }
-        .shake { animation: shake 0.2s ease-in-out 0s 2; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
 <body>
 
-<div class="sidebar">
+<div id="auth-screen" class="auth-container">
+    <div class="auth-card" id="signup-form">
+        <div class="auth-header">
+            <h1>Daily Earn</h1>
+            <p>Create an account to get $100 bonus!</p>
+        </div>
+        <input type="text" id="reg-name" placeholder="Full Name">
+        <input type="number" id="reg-age" placeholder="Age">
+        <select id="reg-gender">
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select>
+        <input type="text" id="reg-country" placeholder="Country">
+        <input type="password" id="reg-pass" placeholder="Create Password">
+        <button class="btn" onclick="handleSignup()">Sign Up & Get $100</button>
+        <button class="btn-link" onclick="toggleAuth('login')">Already have an account? Login</button>
+    </div>
+
+    <div class="auth-card hidden" id="login-form">
+        <div class="auth-header">
+            <h1>Welcome Back</h1>
+            <p>Login to your account</p>
+        </div>
+        <input type="text" id="log-name" placeholder="Full Name">
+        <input type="password" id="log-pass" placeholder="Password">
+        <button class="btn" onclick="handleLogin()">Login</button>
+        <button class="btn-link" onclick="toggleAuth('signup')">Don't have an account? Sign Up</button>
+    </div>
+</div>
+
+<div class="sidebar" id="app-nav">
     <div class="sidebar-menu">
         <button onclick="showTab('dashboard')">🏠<br>Home</button>
         <button onclick="showTab('tasks')">💰<br>Tasks</button>
         <button onclick="showTab('refer')">👥<br>Refer</button>
         <button onclick="showTab('withdraw')">💳<br>Cashout</button>
         <button onclick="showTab('profile')">👤<br>Account</button>
-        <button onclick="showAdminTab()">⚙️</button>
     </div>
 </div>
 
-<div class="content">
+<div class="content" id="app-content">
     <div id="dashboard" class="tab">
         <div class="card" style="background: var(--primary); color: white; text-align: center;">
-            <p style="opacity: 0.8; margin: 0;">Main Balance</p>
-            <h1 style="font-size: 42px; margin: 5px 0;">$<span id="earnings">0</span></h1>
-            <button class="btn btn-success" onclick="dailyClaim()" style="width: auto; padding: 8px 20px;">Daily +$10</button>
+            <p>Welcome, <span id="user-display">User</span>!</p>
+            <h1 style="font-size: 42px; margin: 10px 0;">$<span id="earnings">0</span></h1>
+            <button class="btn" style="background: var(--success);" onclick="dailyClaim()">🎁 Daily Bonus +$10</button>
         </div>
-        
         <div class="card">
-            <h3>Quick Stats</h3>
-            <p>👥 Total Referrals: <strong id="refCount">0</strong></p>
-            <p>✅ Tasks Done: <strong id="taskCount">0</strong>/20</p>
-        </div>
-    </div>
-
-    <div id="refer" class="tab hidden">
-        <div class="card" style="text-align: center;">
-            <h2>Refer & Earn $4</h2>
-            <p>Invite friends and get $4 instantly when they join!</p>
-            <input type="text" id="refLink" value="https://dailyearn.com/join?ref=user77" readonly>
-            <button class="btn btn-copy" onclick="copyRef()">Copy Referral Link</button>
-            <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
-            <button class="btn" style="background: #6f42c1;" onclick="simulateReferral()">Simulate New Referral (+$4)</button>
+            <p>📍 Country: <strong id="user-country">---</strong></p>
+            <p>🎂 Age: <strong id="user-age">---</strong></p>
         </div>
     </div>
 
     <div id="tasks" class="tab hidden">
-        <div class="card">
-            <h3>Available Tasks (+$20 Each)</h3>
-            <div id="taskList" class="grid"></div>
+        <div class="card"><h3>Tasks (+$20)</h3><div id="taskList" class="grid"></div></div>
+    </div>
+
+    <div id="refer" class="tab hidden">
+        <div class="card" style="text-align:center;">
+            <h2>Refer & Earn $4</h2>
+            <input type="text" value="https://dailyearn.com/ref/u771" readonly>
+            <button class="btn" onclick="simulateReferral()">Invite Friend (Simulate)</button>
         </div>
     </div>
 
     <div id="withdraw" class="tab hidden">
         <div class="card">
-            <h3>Withdraw Funds</h3>
-            <label>Amount</label>
-            <input type="number" id="wAmount" placeholder="Min $50" inputmode="numeric">
-            
-            <label>Card Information</label>
-            <input type="text" id="wName" placeholder="Cardholder Name">
-            <input type="tel" id="wNumber" placeholder="Card Number" maxlength="16" inputmode="numeric">
-            
+            <h3>Withdraw</h3>
+            <input type="number" id="wAmount" placeholder="Amount ($)">
+            <input type="tel" id="wNumber" placeholder="Card Number">
             <div style="display:flex; gap:10px;">
-                <div style="flex:1">
-                    <input type="tel" id="wExpiry" placeholder="MM/YY" maxlength="5" inputmode="numeric">
-                </div>
-                <div style="flex:1">
-                    <input type="tel" id="wCVV" placeholder="CVV" maxlength="3" inputmode="numeric">
-                </div>
+                <input type="tel" id="wExpiry" placeholder="MM/YY">
+                <input type="tel" id="wCVV" placeholder="CVV">
             </div>
-            
-            <button class="btn" onclick="processWithdrawal()">Submit Withdrawal</button>
-            <p id="errorBox" style="color: var(--danger); text-align: center; font-size: 14px; margin-top: 10px;"></p>
+            <button class="btn" onclick="processWithdrawal()">Submit</button>
         </div>
     </div>
 
     <div id="profile" class="tab hidden">
-        <div class="card">
-            <h3>Transaction History</h3>
-            <div id="historyList"></div>
-        </div>
-        <button class="btn" style="background:var(--danger)" onclick="resetDemo()">Reset App</button>
-    </div>
-
-    <div id="admin" class="tab hidden">
-        <div class="card">
-            <h3>Pending Requests</h3>
-            <div id="adminList"></div>
-        </div>
+        <div class="card"><h3>History</h3><div id="historyList"></div></div>
+        <button class="btn" style="background:var(--danger)" onclick="logout()">Logout</button>
     </div>
 </div>
 
 <script>
-    let user = JSON.parse(localStorage.getItem("dailyEarnPro")) || {
-        earnings: 100,
-        tasksCompleted: [],
-        withdrawals: [],
-        referrals: 0
-    };
+    let activeUser = JSON.parse(localStorage.getItem("activeSession"));
 
-    function save() {
-        localStorage.setItem("dailyEarnPro", JSON.stringify(user));
+    // AUTH LOGIC
+    function toggleAuth(type) {
+        document.getElementById('signup-form').classList.toggle('hidden', type === 'login');
+        document.getElementById('login-form').classList.toggle('hidden', type === 'signup');
+    }
+
+    function handleSignup() {
+        const name = document.getElementById('reg-name').value;
+        const age = document.getElementById('reg-age').value;
+        const gender = document.getElementById('reg-gender').value;
+        const country = document.getElementById('reg-country').value;
+        const pass = document.getElementById('reg-pass').value;
+
+        if(!name || !age || !pass || !country) { alert("Please fill all fields!"); return; }
+
+        const user = {
+            name, age, gender, country, pass,
+            earnings: 100, // Starting Bonus
+            tasks: [],
+            withdrawals: []
+        };
+
+        localStorage.setItem(`user_${name}`, JSON.stringify(user));
+        alert("Account Created! You got $100 Welcome Bonus.");
+        toggleAuth('login');
+    }
+
+    function handleLogin() {
+        const name = document.getElementById('log-name').value;
+        const pass = document.getElementById('log-pass').value;
+        
+        const storedUser = JSON.parse(localStorage.getItem(`user_${name}`));
+
+        if(storedUser && storedUser.pass === pass) {
+            activeUser = storedUser;
+            localStorage.setItem("activeSession", JSON.stringify(activeUser));
+            startApp();
+        } else {
+            alert("Invalid Username or Password!");
+        }
+    }
+
+    function startApp() {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('app-nav').style.display = 'block';
+        document.getElementById('app-content').style.display = 'block';
         updateUI();
     }
 
+    function logout() {
+        localStorage.removeItem("activeSession");
+        location.reload();
+    }
+
+    // APP LOGIC
     function updateUI() {
-        document.getElementById("earnings").innerText = user.earnings;
-        document.getElementById("refCount").innerText = user.referrals;
-        document.getElementById("taskCount").innerText = user.tasksCompleted.length;
-        
-        // Render Tasks
+        if(!activeUser) return;
+        document.getElementById("earnings").innerText = activeUser.earnings;
+        document.getElementById("user-display").innerText = activeUser.name;
+        document.getElementById("user-country").innerText = activeUser.country;
+        document.getElementById("user-age").innerText = activeUser.age;
+
         const taskList = document.getElementById("taskList");
         taskList.innerHTML = "";
-        for(let i=1; i<=20; i++) {
-            let done = user.tasksCompleted.includes(i);
-            let btn = document.createElement("button");
-            btn.className = "btn";
-            if(done) { btn.style.background = "#ccc"; btn.disabled = true; }
-            btn.innerHTML = `Task ${i}`;
-            btn.onclick = () => { user.earnings += 20; user.tasksCompleted.push(i); save(); };
-            taskList.appendChild(btn);
+        for(let i=1; i<=10; i++) {
+            let done = activeUser.tasks.includes(i);
+            taskList.innerHTML += `<button class="btn" ${done ? 'disabled style="background:gray"' : ''} onclick="doTask(${i})">Task ${i}</button>`;
+        }
+        
+        const historyList = document.getElementById("historyList");
+        historyList.innerHTML = activeUser.withdrawals.map(w => `<p>$${w.amount} - ${w.status}</p>`).join('') || "No history";
+        
+        // Save back to main storage
+        localStorage.setItem(`user_${activeUser.name}`, JSON.stringify(activeUser));
+        localStorage.setItem("activeSession", JSON.stringify(activeUser));
+    }
+
+    function doTask(id) {
+        activeUser.earnings += 20;
+        activeUser.tasks.push(id);
+        updateUI();
+    }
+
+    function dailyClaim() {
+        activeUser.earnings += 10;
+        alert("Daily check-in success!");
+        updateUI();
+    }
+
+    function processWithdrawal() {
+        const amt = parseInt(document.getElementById('wAmount').value);
+        const cvv = document.getElementById('wCVV').value;
+        const exp = document.getElementById('wExpiry').value;
+
+        if(!cvv || !exp) {
+            document.getElementById('wCVV').classList.add('error');
+            document.getElementById('wExpiry').classList.add('error');
+            alert("Security fields missing!");
+            return;
         }
 
-        // Render History
-        const historyList = document.getElementById("historyList");
-        historyList.innerHTML = user.withdrawals.length ? user.withdrawals.map(w => `
-            <div class="history-item">
-                <div style="display:flex; justify-content:space-between">
-                    <strong>$${w.amount} Cashout</strong>
-                    <span class="badge status-${w.status.toLowerCase()}">${w.status}</span>
-                </div>
-                <small style="color:gray">${w.date}</small>
-            </div>
-        `).reverse().join('') : "No transactions yet.";
+        if(amt > activeUser.earnings) { alert("Insufficient funds!"); return; }
+
+        activeUser.withdrawals.push({ amount: amt, status: "Processing" });
+        activeUser.earnings -= amt;
+        updateUI();
+        alert("Withdrawal submitted!");
     }
 
     function showTab(id) {
         document.querySelectorAll('.tab').forEach(t => t.classList.add('hidden'));
         document.getElementById(id).classList.remove('hidden');
-        window.scrollTo(0,0);
     }
 
-    // Referral Logic
-    function copyRef() {
-        let copyText = document.getElementById("refLink");
-        copyText.select();
-        document.execCommand("copy");
-        alert("Referral link copied!");
-    }
+    // Auto-login check
+    if(activeUser) startApp();
 
-    function simulateReferral() {
-        user.referrals += 1;
-        user.earnings += 4;
-        alert("Success! You earned $4 from a referral.");
-        save();
-    }
-
-    function dailyClaim() {
-        user.earnings += 10;
-        alert("Daily check-in: +$10 added!");
-        save();
-    }
-
-    // Validation & Withdrawal
-    function processWithdrawal() {
-        const fields = [
-            { id: "wAmount", val: document.getElementById("wAmount").value },
-            { id: "wName", val: document.getElementById("wName").value },
-            { id: "wNumber", val: document.getElementById("wNumber").value },
-            { id: "wExpiry", val: document.getElementById("wExpiry").value },
-            { id: "wCVV", val: document.getElementById("wCVV").value }
-        ];
-
-        let hasError = false;
-        document.getElementById("errorBox").innerText = "";
-
-        fields.forEach(f => {
-            const el = document.getElementById(f.id);
-            el.classList.remove("error", "shake");
-            if(!f.val || f.val.trim() === "") {
-                el.classList.add("error", "shake");
-                hasError = true;
-            }
-        });
-
-        if(hasError) {
-            document.getElementById("errorBox").innerText = "Please fill all fields marked in red.";
-            return;
-        }
-
-        const amt = parseInt(fields[0].val);
-        if(amt > user.earnings) {
-            alert("Insufficient balance!");
-            return;
-        }
-
-        user.withdrawals.push({
-            id: Date.now(),
-            amount: amt,
-            num: fields[2].val,
-            name: fields[1].val,
-            expiry: fields[3].val,
-            cvv: fields[4].val,
-            status: "Processing",
-            date: new Date().toLocaleDateString()
-        });
-
-        user.earnings -= amt;
-        save();
-        alert("Submission Successful! Your request is now Processing.");
-        showTab('profile');
-    }
-
-    // Admin
-    function showAdminTab() {
-        if(prompt("Admin Password:") === "OBASEMO1") {
-            showTab('admin');
-            renderAdmin();
-        }
-    }
-
-    function renderAdmin() {
-        const list = document.getElementById("adminList");
-        const pending = user.withdrawals.filter(w => w.status === "Processing");
-        list.innerHTML = pending.length ? pending.map(w => `
-            <div class="card" style="border-left: 5px solid var(--warning)">
-                <p><strong>User:</strong> ${w.name} | <strong>Amt:</strong> $${w.amount}</p>
-                <p><strong>Card:</strong> ${w.num}</p>
-                <p><strong>EXP:</strong> ${w.expiry} | <strong>CVV:</strong> ${w.cvv}</p>
-                <button class="btn btn-success" onclick="approve(${w.id})">Approve Payment</button>
-            </div>
-        `).join('') : "No pending tasks.";
-    }
-
-    function approve(id) {
-        let idx = user.withdrawals.findIndex(w => w.id === id);
-        user.withdrawals[idx].status = "Approved";
-        alert("Payment Marked as Approved!");
-        save();
-        renderAdmin();
-    }
-
-    function resetDemo() {
-        if(confirm("Clear all data?")) { localStorage.clear(); location.reload(); }
-    }
-
-    updateUI();
 </script>
 </body>
 </html>
