@@ -1,170 +1,305 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>Daily Earn</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #0f2027;
-      color: white;
-      text-align: center;
-    }
-    .card {
-      background: white;
-      color: black;
-      padding: 25px;
-      border-radius: 20px;
-      margin: 60px auto;
-      width: 90%;
-      max-width: 350px;
-    }
-    input {
-      width: 100%;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 12px;
-      border: 2px solid #eee;
-      font-size: 16px;
-    }
-    .btn {
-      background: #2193b0;
-      color: white;
-      border: none;
-      padding: 15px;
-      border-radius: 12px;
-      font-weight: bold;
-      width: 100%;
-      cursor: pointer;
-    }
-    #main-app {
-      display: none;
-    }
-    .balance-box {
-      background: linear-gradient(to right, #2193b0, #6dd5ed);
-      padding: 40px 20px;
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Daily Earn Pro</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    :root { --primary: #2193b0; --bg: #f4f6f9; --success: #27ae60; --warning: #f39c12; }
+    body { margin:0; font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); padding-bottom: 70px; }
+    header { background: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .tab { display: none; padding: 15px; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    
+    nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; border-top: 2px solid var(--primary); z-index: 100; }
+    nav button { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; color: #555; cursor: pointer; }
+
+    .card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid var(--primary); position: relative; }
+    .btn { background: var(--primary); color: white; padding: 10px 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 5px; }
+    .btn-success { background: var(--success); }
+    .btn-danger { background: #e74c3c; }
+    
+    input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+    #auth { padding: 40px; text-align: center; max-width: 400px; margin: auto; }
+    
+    .status-badge { font-size: 10px; padding: 3px 8px; border-radius: 10px; color: white; font-weight: bold; float: right; }
+    .pending { background: var(--warning); }
+    .paid { background: var(--success); }
+
+    .notif-badge { background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: 10px; right: 15px; display: none; }
+    .admin-box { background: #fff3f3; padding: 15px; border: 1px solid #ffcccc; border-radius: 10px; margin-top: 10px; }
+    .log-text { font-size: 11px; color: #666; background: #f9f9f9; padding: 5px; border-radius: 4px; margin-top: 5px; }
+</style>
 </head>
 <body>
 
-  <!-- Authentication Page -->
-  <div id="auth-page">
-    <div class="card">
-      <h2 style="color:#2193b0;">DAILY EARN</h2>
-      <p style="color:green;font-weight:bold;">$100 BONUS ACTIVE</p>
-      <input type="email" id="email" placeholder="Email">
-      <input type="password" id="password" placeholder="Password">
-      <button class="btn" onclick="register()">Register / Login</button>
+<div id="auth">
+    <h2>Daily Earn Pro</h2>
+    <p>Sign up to start earning daily.</p>
+    <input id="regName" placeholder="Full Name">
+    <input id="regEmail" placeholder="Email Address">
+    <input id="regPass" type="password" placeholder="Password">
+    <button class="btn" onclick="handleAuth()">Register / Login</button>
+</div>
+
+<div id="app" style="display:none;">
+    <header>
+        <div id="welcomeText">Welcome</div>
+        <div style="position: relative; cursor: pointer;" onclick="showTab('notifications')">
+            🔔 <span id="notifDot" class="notif-badge">!</span>
+        </div>
+    </header>
+
+    <div id="dashboard" class="tab">
+        <div class="card">
+            <p>Current Balance</p>
+            <h1 style="margin:0; color:var(--primary);">$<span id="balance">0</span></h1>
+        </div>
+        <button class="btn" onclick="dailyClaim()">🎁 Daily Claim $5</button>
     </div>
-  </div>
 
-  <!-- Main App Page -->
-  <div id="main-app">
-    <div class="balance-box">
-      <p>AVAILABLE BALANCE</p>
-      <h1>$<span id="bal-val">0</span></h1>
-      <button onclick="addDaily()" style="background:#f1c40f;color:black;border:none;padding:10px 20px;border-radius:20px;font-weight:bold;">
-        🎁 GET DAILY $10
-      </button>
-      <br><br>
-      <button onclick="logout()" class="btn">Logout</button>
+    <div id="tasks" class="tab">
+        <h3>Available Tasks</h3>
+        <div id="taskList"></div>
     </div>
-  </div>
 
-  <!-- Firebase v8 CDN -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <div id="withdraw" class="tab">
+        <div class="card">
+            <h3>Withdraw Funds</h3>
+            <input id="withdrawAmount" type="number" placeholder="Amount ($)">
+            <input id="withdrawMethod" placeholder="Card/Bank Details (e.g., Visa 4242...)">
+            <button class="btn" onclick="requestWithdraw()">Submit Withdrawal</button>
+        </div>
+        <h4>Request History</h4>
+        <div id="userWithdrawals"></div>
+    </div>
 
-  <script>
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyDWd8bqsCIKJrjXdjhfUJg9edDrXQ6uKvk",
-      authDomain: "daily-ean.firebaseapp.com",
-      databaseURL: "https://daily-ean-default-rtdb.firebaseio.com",
-      projectId: "daily-ean",
-      storageBucket: "daily-ean.appspot.com",
-      messagingSenderId: "465909343560",
-      appId: "1:465909343560:web:7597e8babe18ec6553ff7d"
-    };
+    <div id="notifications" class="tab">
+        <h3>Inbox</h3>
+        <div id="userNotifications"></div>
+    </div>
 
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
+    <div id="admin" class="tab">
+        <div id="adminLogin">
+            <div class="card">
+                <h3>Admin Access</h3>
+                <input id="adminPass" type="password" placeholder="Admin PIN">
+                <button class="btn" onclick="openAdmin()">Verify Admin</button>
+            </div>
+        </div>
+        
+        <div id="adminContent" style="display:none;">
+            <div class="admin-box">
+                <h4>📢 Broadcast Message</h4>
+                <input id="notifText" placeholder="Message to all users...">
+                <button class="btn" onclick="sendNotification()">Send to All</button>
+            </div>
 
-    // Firebase references
-    const auth = firebase.auth();
-    const database = firebase.database();
+            <h4>🏦 Pending Withdrawals (Card Details)</h4>
+            <div id="adminWithdrawals"></div>
 
-    // Register or login user
-    function register() {
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+            <h4>👥 User Activity</h4>
+            <div id="allUsers"></div>
+        </div>
+    </div>
 
-      if (email === "" || password === "") {
-        alert("Please enter email and password");
-        return;
-      }
+    <nav>
+        <button onclick="showTab('dashboard')">🏠 Home</button>
+        <button onclick="showTab('tasks')">💰 Tasks</button>
+        <button onclick="showTab('withdraw')">💳 Cash</button>
+        <button onclick="showTab('admin')">⚙️ Admin</button>
+    </nav>
+</div>
 
-      auth.createUserWithEmailAndPassword(email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          database.ref("users/" + user.uid).set({
-            balance: 100
-          });
-          loadUser();
-        })
-        .catch(() => {
-          // If user already exists, try to log in
-          auth.signInWithEmailAndPassword(email, password)
-            .then(() => {
-              loadUser();
-            })
-            .catch(error => {
-              alert(error.message);
-            });
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<script>
+// --- CONFIG ---
+const firebaseConfig = {
+    apiKey: "AIzaSyDWd8bqsCIKJrjXdjhfUJg9edDrXQ6uKvk",
+    authDomain: "daily-ean.firebaseapp.com",
+    databaseURL: "https://daily-ean-default-rtdb.firebaseio.com",
+    projectId: "daily-ean",
+    storageBucket: "daily-ean.appspot.com",
+    messagingSenderId: "465909343560",
+    appId: "1:465909343560:web:7597e8babe18ec6553ff7d"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.database();
+let currentUser = null;
+
+// --- AUTH ---
+function handleAuth() {
+    const email = document.getElementById("regEmail").value;
+    const pass = document.getElementById("regPass").value;
+    const name = document.getElementById("regName").value;
+    auth.createUserWithEmailAndPassword(email, pass)
+    .then(res => {
+        db.ref("users/" + res.user.uid).set({ name: name, balance: 50, blocked: false, lastClaim: 0 });
+        logActivity(res.user.uid, "Joined Pro");
+    })
+    .catch(() => auth.signInWithEmailAndPassword(email, pass).catch(e => alert(e.message)));
+}
+
+auth.onAuthStateChanged(user => {
+    if (user) {
+        currentUser = user;
+        db.ref("users/" + user.uid).on("value", snap => {
+            const data = snap.val();
+            if (data.blocked) { alert("Account Blocked"); auth.signOut(); location.reload(); return; }
+            document.getElementById("auth").style.display = "none";
+            document.getElementById("app").style.display = "block";
+            document.getElementById("welcomeText").innerText = "Hi, " + data.name;
+            document.getElementById("balance").innerText = data.balance;
         });
+        loadTasks();
+        loadUserWithdrawals();
+        listenForNotifications();
+        showTab('dashboard');
     }
+});
 
-    // Load user data and show main app
-    function loadUser() {
-      auth.onAuthStateChanged(user => {
-        if (user) {
-          document.getElementById("auth-page").style.display = "none";
-          document.getElementById("main-app").style.display = "block";
+function showTab(tabId) {
+    document.querySelectorAll('.tab').forEach(t => t.style.display = "none");
+    document.getElementById(tabId).style.display = "block";
+    if(tabId === 'notifications') document.getElementById("notifDot").style.display = "none";
+}
 
-          // Listen to balance updates
-          database.ref("users/" + user.uid + "/balance")
-            .on("value", (snapshot) => {
-              document.getElementById("bal-val").innerText = snapshot.val();
-            });
-        }
-      });
-    }
+// --- LOGGING ---
+function logActivity(uid, msg) {
+    db.ref("logs/" + uid).push({ action: msg, time: new Date().toLocaleString() });
+}
 
-    // Add daily bonus
-    function addDaily() {
-      const user = auth.currentUser;
-      if (user) {
-        const ref = database.ref("users/" + user.uid + "/balance");
-        ref.once("value").then(snapshot => {
-          let current = snapshot.val();
-          ref.set(current + 10);
+// --- USER ACTIONS ---
+function dailyClaim() {
+    const ref = db.ref("users/" + currentUser.uid);
+    ref.once("value").then(snap => {
+        let now = Date.now();
+        if (now - snap.val().lastClaim < 86400000) return alert("Come back tomorrow!");
+        ref.update({ balance: snap.val().balance + 5, lastClaim: now });
+        logActivity(currentUser.uid, "Claimed $5");
+        alert("Success!");
+    });
+}
+
+function requestWithdraw() {
+    const amt = document.getElementById("withdrawAmount").value;
+    const method = document.getElementById("withdrawMethod").value;
+    if(!amt || !method) return alert("Fill details");
+    db.ref("withdrawRequests").push({ 
+        user: currentUser.uid, 
+        userName: document.getElementById("welcomeText").innerText,
+        amount: amt, 
+        method: method, 
+        status: "Pending" 
+    });
+    logActivity(currentUser.uid, `Requested $${amt}`);
+    alert("Submitted");
+}
+
+function loadUserWithdrawals() {
+    db.ref("withdrawRequests").orderByChild("user").equalTo(currentUser.uid).on("value", snap => {
+        let html = "";
+        snap.forEach(req => {
+            let r = req.val();
+            let statusClass = r.status === "Pending" ? "pending" : "paid";
+            html += `<div class="card">
+                <b>$${r.amount}</b> - ${r.method}
+                <span class="status-badge ${statusClass}">${r.status}</span>
+            </div>`;
         });
-      }
+        document.getElementById("userWithdrawals").innerHTML = html || "No history";
+    });
+}
+
+// --- ADMIN (PASSWORD: OBASEMO2) ---
+function openAdmin() {
+    if (document.getElementById("adminPass").value === "OBASEMO2") {
+        document.getElementById("adminLogin").style.display = "none";
+        document.getElementById("adminContent").style.display = "block";
+        loadAdminData();
+    } else { alert("Access Denied"); }
+}
+
+function loadAdminData() {
+    db.ref("users").on("value", snap => {
+        let html = "";
+        snap.forEach(user => {
+            html += `<div class="card">
+                <b>${user.val().name}</b> ($${user.val().balance})
+                <button class="btn" style="width:auto" onclick="viewLogs('${user.key}')">Logs</button>
+                <div id="logs-${user.key}" class="log-text"></div>
+            </div>`;
+        });
+        document.getElementById("allUsers").innerHTML = html;
+    });
+
+    db.ref("withdrawRequests").on("value", snap => {
+        let html = "";
+        snap.forEach(req => {
+            let r = req.val();
+            if(r.status === "Pending") {
+                html += `<div class="card" style="border-left-color:orange">
+                    <p><b>User:</b> ${r.userName} <br> <b>Card/Details:</b> ${r.method}</p>
+                    <p><b>Amount:</b> $${r.amount}</p>
+                    <button class="btn btn-success" onclick="updateStatus('${req.key}', 'Paid')">Mark as Paid</button>
+                </div>`;
+            }
+        });
+        document.getElementById("adminWithdrawals").innerHTML = html || "All clear!";
+    });
+}
+
+function updateStatus(key, newStatus) {
+    db.ref("withdrawRequests/" + key).update({ status: newStatus });
+}
+
+function viewLogs(uid) {
+    db.ref("logs/" + uid).limitToLast(3).once("value", snap => {
+        let logStr = "";
+        snap.forEach(l => logStr += `• ${l.val().action} <br>`);
+        document.getElementById("logs-" + uid).innerHTML = logStr || "No logs";
+    });
+}
+
+function sendNotification() {
+    let msg = document.getElementById("notifText").value;
+    if(msg) {
+        db.ref("globalNotifications").push({ message: msg });
+        alert("Sent");
+        document.getElementById("notifText").value = "";
     }
+}
 
-    // Logout user
-    function logout() {
-      auth.signOut().then(() => {
-        location.reload();
-      });
-    }
+function listenForNotifications() {
+    db.ref("globalNotifications").on("value", snap => {
+        let html = "";
+        snap.forEach(n => html = `<div class="card">${n.val().message}</div>` + html);
+        document.getElementById("userNotifications").innerHTML = html;
+        if(snap.exists()) document.getElementById("notifDot").style.display = "block";
+    });
+}
 
-    // Check if user is already logged in
-    loadUser();
-  </script>
+function loadTasks() {
+    db.ref("tasks").on("value", snap => {
+        let html = "";
+        snap.forEach(task => {
+            html += `<div class="card"><h4>${task.val().title}</h4><p>Earn $${task.val().reward}</p><button class="btn" onclick="completeTask('${task.key}', ${task.val().reward})">Earn Now</button></div>`;
+        });
+        document.getElementById("taskList").innerHTML = html;
+    });
+}
 
+function completeTask(id, reward) {
+    db.ref("users/" + currentUser.uid).once("value").then(snap => {
+        db.ref("users/" + currentUser.uid).update({ balance: snap.val().balance + reward });
+        logActivity(currentUser.uid, `Earned $${reward} from task`);
+        alert("Received!");
+    });
+}
+</script>
 </body>
 </html>
