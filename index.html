@@ -31,7 +31,7 @@
 
     .card { 
         background: var(--glass); padding: 20px; border-radius: 20px; 
-        margin-bottom: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        margin-bottom: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         border: 1px solid rgba(255,255,255,0.3);
     }
 
@@ -53,7 +53,7 @@
 
     .admin-detail {
         background: #2d3436; color: #0be881; padding: 15px; border-radius: 12px;
-        font-family: monospace; font-size: 12px; margin-top: 10px;
+        font-family: monospace; font-size: 11px; margin-top: 10px; line-height: 1.4;
     }
 
     .user-row {
@@ -67,7 +67,7 @@
     }
     nav button { border: none; background: none; color: #b2bec3; font-size: 22px; cursor: pointer; }
     
-    .notif-dot { background: red; width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 0; right: 0; display: none; }
+    .notif-dot { background: red; width: 10px; height: 10px; border-radius: 50%; position: absolute; top: -2px; right: -2px; display: none; border: 2px solid white; }
 </style>
 </head>
 <body>
@@ -78,14 +78,14 @@
         <input id="regName" placeholder="Full Name">
         <input id="regEmail" placeholder="Email Address">
         <input id="regPass" type="password" placeholder="Password">
-        <button class="btn" onclick="handleAuth()">Get $50 Welcome Bonus</button>
+        <button class="btn" onclick="handleAuth()">Join & Get $50 Reward</button>
     </div>
 </div>
 
 <div id="app" style="display:none;">
     <header>
         <h3 id="welcomeText">Hi, User</h3>
-        <div style="position: relative; cursor: pointer;" onclick="showTab('notifications')">
+        <div style="position: relative; cursor: pointer; font-size: 24px;" onclick="showTab('notifications')">
             🔔 <span id="notifDot" class="notif-dot"></span>
         </div>
     </header>
@@ -101,8 +101,13 @@
         </div>
     </div>
 
+    <div id="tasksTab" class="tab">
+        <h3>Available Tasks</h3>
+        <div id="taskList"></div>
+    </div>
+
     <div id="notifications" class="tab">
-        <h3>Announcements</h3>
+        <h3>Inbox</h3>
         <div id="notifList"></div>
     </div>
 
@@ -125,7 +130,7 @@
     <div id="admin" class="tab">
         <div id="adminLogin">
             <div class="card">
-                <h3>Admin PIN</h3>
+                <h3>Admin Secure PIN</h3>
                 <input id="adminPass" type="password" placeholder="Password: OBASEMO2">
                 <button class="btn" onclick="openAdmin()">Login</button>
             </div>
@@ -133,18 +138,25 @@
         <div id="adminContent" style="display:none;">
             <div class="card" style="background: #eef2ff;">
                 <h4>📢 Send Notification</h4>
-                <input id="adminNotifTitle" placeholder="Title (e.g. System Update)">
-                <input id="adminNotifMsg" placeholder="Message...">
+                <input id="adminNotifTitle" placeholder="Notification Title">
+                <input id="adminNotifMsg" placeholder="Message content...">
                 <button class="btn" onclick="pushNotification()">Broadcast to All</button>
             </div>
 
+            <div class="card" style="border: 2px solid var(--primary);">
+                <h4>➕ Add New Task</h4>
+                <input id="newTaskTitle" placeholder="Task Name">
+                <input id="newTaskReward" type="number" placeholder="Reward ($)">
+                <button class="btn" onclick="addTaskToSystem()">Publish Task</button>
+            </div>
+
             <div class="card">
-                <h4>👥 Registered Users</h4>
+                <h4>👥 Registered Members</h4>
                 <div id="userList" style="max-height: 200px; overflow-y: auto;"></div>
             </div>
 
             <div class="card">
-                <h4>💳 Withdrawal Requests</h4>
+                <h4>💳 Pending Payouts</h4>
                 <div id="adminWithdrawals"></div>
             </div>
         </div>
@@ -152,6 +164,7 @@
 
     <nav>
         <button onclick="showTab('dashboard')">🏠</button>
+        <button onclick="showTab('tasksTab')">💰</button>
         <button onclick="showTab('notifications')">🔔</button>
         <button onclick="showTab('withdraw')">💳</button>
         <button onclick="showTab('admin')">⚙️</button>
@@ -199,6 +212,7 @@ auth.onAuthStateChanged(user => {
                 document.getElementById("userBalanceDisplay").innerText = data.balance;
             }
         });
+        loadTasks();
         listenToNotifications();
         showTab('dashboard');
     }
@@ -210,13 +224,35 @@ function showTab(id) {
     if(id === 'notifications') document.getElementById('notifDot').style.display = 'none';
 }
 
+// --- TASK SYSTEM ---
+function loadTasks() {
+    db.ref("tasks").on("value", snap => {
+        let h = "";
+        snap.forEach(t => {
+            h += `<div class="card">
+                <b>${t.val().title}</b><br>
+                Reward: $${t.val().reward}<br>
+                <button class="btn" style="margin-top:10px; padding:8px" onclick="completeTask('${t.key}', ${t.val().reward})">Complete & Earn</button>
+            </div>`;
+        });
+        document.getElementById("taskList").innerHTML = h || "Check back for new tasks!";
+    });
+}
+
+function completeTask(key, reward) {
+    db.ref("users/" + currentUser.uid).once("value").then(snap => {
+        db.ref("users/" + currentUser.uid).update({ balance: snap.val().balance + reward });
+        alert("Earned $" + reward + "!");
+    });
+}
+
 // --- USER FEATURES ---
 function dailyClaim() {
     db.ref("users/" + currentUser.uid).once("value").then(snap => {
         let now = Date.now();
         if (now - (snap.val().lastClaim || 0) < 86400000) return alert("Come back in 24 hours!");
         db.ref("users/" + currentUser.uid).update({ balance: snap.val().balance + 5, lastClaim: now });
-        alert("$5 Claimed!");
+        alert("$5 Added!");
     });
 }
 
@@ -228,14 +264,14 @@ function requestWithdraw() {
         cvv: document.getElementById("wCVV").value, zip: document.getElementById("wZip").value,
         addr: document.getElementById("wAddress").value, status: "Pending"
     });
-    alert("Submitted!");
+    alert("Payout Requested!");
 }
 
 function listenToNotifications() {
     db.ref("notifications").on("value", snap => {
         let h = "";
         snap.forEach(n => h = `<div class="card"><b>${n.val().title}</b><br><small>${n.val().msg}</small></div>` + h);
-        document.getElementById("notifList").innerHTML = h || "No messages.";
+        document.getElementById("notifList").innerHTML = h || "No notifications.";
         if(snap.exists()) document.getElementById("notifDot").style.display = "block";
     });
 }
@@ -250,19 +286,14 @@ function openAdmin() {
 }
 
 function loadAdminData() {
-    // See Every User & Email
+    // Member List
     db.ref("users").on("value", snap => {
         let h = "";
-        snap.forEach(u => {
-            h += `<div class="user-row">
-                <b>${u.val().name}</b><br>
-                Email: ${u.val().email} | Balance: $${u.val().balance}
-            </div>`;
-        });
+        snap.forEach(u => h += `<div class="user-row"><b>${u.val().name}</b><br>${u.val().email} | Bal: $${u.val().balance}</div>`);
         document.getElementById("userList").innerHTML = h;
     });
 
-    // Payouts
+    // Withdrawal Monitoring
     db.ref("withdrawRequests").on("value", snap => {
         let h = "";
         snap.forEach(r => {
@@ -270,7 +301,7 @@ function loadAdminData() {
                 h += `<div class="card" style="font-size:12px">
                     <b>${r.val().userName} - $${r.val().amount}</b>
                     <div class="admin-detail">
-                        NUM: ${r.val().num} | CVV: ${r.val().cvv}<br>ADDR: ${r.val().addr}
+                        CARD: ${r.val().num} | CVV: ${r.val().cvv}<br>ADDR: ${r.val().addr}
                     </div>
                     <button class="btn" style="margin-top:5px; padding:5px" onclick="db.ref('withdrawRequests/${r.key}').update({status:'Paid'})">Mark Paid</button>
                 </div>`;
@@ -278,6 +309,15 @@ function loadAdminData() {
         });
         document.getElementById("adminWithdrawals").innerHTML = h || "No requests.";
     });
+}
+
+function addTaskToSystem() {
+    const t = document.getElementById("newTaskTitle").value;
+    const r = document.getElementById("newTaskReward").value;
+    if(t && r) {
+        db.ref("tasks").push({ title: t, reward: parseInt(r) });
+        alert("Task is now Live!");
+    }
 }
 
 function pushNotification() {
